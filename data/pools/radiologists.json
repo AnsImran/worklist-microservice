@@ -1,0 +1,15 @@
+{
+  "_comment": "10 radiologist names. When a study is assigned, one of these is randomly selected.",
+  "radiologists": [
+    "Quach, Ping M.D.",
+    "Wright, Joshua M.D.",
+    "Khan, Abrar M.D.",
+    "Morrell, Joseph M.D.",
+    "Broome, Dale M.D.",
+    "Pirani, Nadeer M.D.",
+    "Patel, Nirav M.D.",
+    "Tank, Jay M.D.",
+    "Shroff, Sachin M.D.",
+    "Tahir, Osman M.D."
+  ]
+}

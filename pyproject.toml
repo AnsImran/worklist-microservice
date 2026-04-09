@@ -1,0 +1,12 @@
+[project]
+name = "microservice-worklist"
+version = "0.1.0"
+description = "Simulated hospital radiology worklist microservice"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.30.0",
+    "pydantic>=2.7.0",
+    "openpyxl>=3.1.5",
+]

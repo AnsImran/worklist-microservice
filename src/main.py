@@ -1,0 +1,110 @@
+"""FastAPI application entry point.
+
+Starts the worklist simulation service with:
+- Background scheduler (30-second tick loop)
+- REST API endpoints for worklist, history, audit, studies, health
+- Hot-reloadable JSON configuration
+
+Run with: uv run uvicorn src.main:app --host 0.0.0.0 --port 8000
+"""
+
+import asyncio
+import json
+import logging
+from contextlib import asynccontextmanager
+from typing import AsyncIterator
+
+from fastapi import FastAPI
+
+from src.api.routes_audit import router as audit_router
+from src.api.routes_health import router as health_router
+from src.api.routes_history import router as history_router
+from src.api.routes_studies import router as studies_router
+from src.api.routes_worklist import router as worklist_router
+from src.config import LIFECYCLE_FILE
+from src.core.field_registry import FieldRegistry
+from src.core.generator import StudyGenerator
+from src.core.lifecycle import LifecycleEngine
+from src.core.scheduler import Scheduler
+from src.data.store import DataStore
+from src.services.audit_logger import AuditLogger
+from src.services.demand_processor import DemandProcessor
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s | %(levelname)-7s | %(name)s | %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+)
+logger = logging.getLogger(__name__)
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI) -> AsyncIterator[None]:
+    """Application lifespan — startup and shutdown."""
+    logger.info("Starting worklist simulation service...")
+
+    # Initialize components
+    store = DataStore()
+    store.load_from_disk()
+
+    field_registry = FieldRegistry()
+    field_registry.load()
+
+    # Load lifecycle config
+    lifecycle_config = {}
+    if LIFECYCLE_FILE.exists():
+        lifecycle_config = json.loads(LIFECYCLE_FILE.read_text(encoding="utf-8"))
+
+    # Store lifecycle config on the store for manual study creation via API
+    store._lifecycle_config = lifecycle_config  # type: ignore[attr-defined]
+
+    audit_logger = AuditLogger(store)
+    generator = StudyGenerator(store, field_registry, lifecycle_config)
+    lifecycle_engine = LifecycleEngine(store, field_registry, audit_logger)
+    demand_processor = DemandProcessor(store, generator, audit_logger)
+
+    scheduler = Scheduler(
+        store=store,
+        field_registry=field_registry,
+        generator=generator,
+        lifecycle_engine=lifecycle_engine,
+        audit_logger=audit_logger,
+        demand_processor=demand_processor,
+    )
+
+    # Attach to app state for dependency injection
+    app.state.store = store
+    app.state.field_registry = field_registry
+
+    # Start background scheduler
+    task = asyncio.create_task(scheduler.run())
+    logger.info("Worklist simulation service started")
+
+    yield
+
+    # Shutdown
+    task.cancel()
+    try:
+        await task
+    except asyncio.CancelledError:
+        pass
+    store.save_to_disk()
+    logger.info("Worklist simulation service stopped")
+
+
+app = FastAPI(
+    title="Simulated Radiology Worklist",
+    description="A microservice that simulates a hospital PACS radiology worklist. "
+    "Generates studies, advances them through lifecycle stages, and provides "
+    "REST API access to live worklist, history, and audit log data.",
+    version="0.1.0",
+    lifespan=lifespan,
+)
+
+# Register routers
+app.include_router(health_router)
+app.include_router(worklist_router)
+app.include_router(history_router)
+app.include_router(audit_router)
+app.include_router(studies_router)

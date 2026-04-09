@@ -1,0 +1,15 @@
+{
+  "_comment": "10 referring physician / doctor names. Used for the 'assigned_by' field when a study is not self-assigned by the radiologist.",
+  "referring_physicians": [
+    "Song, Jaemin SHH",
+    "Mamoor, Azaam R3 SHH",
+    "Scherr, Scott A SHH",
+    "Fleury, Aimee C SHH",
+    "Poelstra, Kornelis A SHH",
+    "Lesani, Omid A SHH",
+    "Yaghobian, Jonathan SHH",
+    "Syed, Ahmed SHH",
+    "Sondrup, Logan C SHH",
+    "Gorbachinsky, Ilya SHH"
+  ]
+}

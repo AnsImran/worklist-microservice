@@ -1,0 +1,63 @@
+{
+  "_comment": "Study descriptions grouped by modality. When generating a study, a random description is picked from the list matching the study's modality.",
+  "CT": [
+    "- CT BRAIN STROKE W/O CONTRAST",
+    "- CT BRAIN W/O CONTRAST",
+    "- CT ABD PELVIS W IV CONTRAST",
+    "- CT ANGIO HEAD W/O W/CONT",
+    "- CT ANGIO BRAIN PERFUSION",
+    "- CT ANGIO CHEST W/CONT FOR PE",
+    "- CT ANGIO NECK W VIZ AI TECH",
+    "- CT THORAX LUNG W/CONTRAST",
+    "- CT THORAX LUNG W/O CONTRAST",
+    "- CT LUMBAR SPINE W/O CONTRAST",
+    "- CT CERVICAL SPINE W/O CONTRAST",
+    "- CT NECK W/CONTRAST",
+    "- CT ANG ABD AORTA RUNOFF W WO C"
+  ],
+  "CR": [
+    "- XR CHEST PA LATERAL",
+    "- XR CHEST AP PORTABLE",
+    "- XR CHEST PA 1 LATERAL",
+    "- XR ABDOMEN AP ONLY (KUB)",
+    "- XR SHOULDER LEFT AP",
+    "- XR FEMUR RIGHT AP LAT 2VIEW",
+    "- XR CHEST PA LATERAL PREOP",
+    "- XR HIP LEFT AP LATERAL"
+  ],
+  "DX": [
+    "- DX CHEST PA LATERAL",
+    "- DX CHEST AP PORTABLE",
+    "- DX ABDOMEN AP ONLY",
+    "- DX KNEE LEFT AP LATERAL",
+    "- DX ANKLE RIGHT AP LATERAL",
+    "- DX WRIST LEFT AP LATERAL"
+  ],
+  "MR": [
+    "- MRI BRAIN W/O W/CONTRAST",
+    "- MRI BRAIN W/O CONTRAST",
+    "- MRI LUMBAR SPINE W/O CONTRAST",
+    "- MRI CERVICAL SPINE W/O CONTRAST",
+    "- MRI KNEE LEFT W/O CONTRAST",
+    "- MRI SHOULDER RIGHT W/O CONTRAST",
+    "- MRI ABDOMEN W/O W/CONTRAST",
+    "- MRI PELVIS W/O W/CONTRAST"
+  ],
+  "US": [
+    "- US ABDOMEN COMPLETE",
+    "- US PELVIC COMPLETE",
+    "- US RENAL BILATERAL",
+    "- US THYROID",
+    "- US OB LIMITED",
+    "- US DOPPLER LOWER EXTREMITY",
+    "- US CAROTID DUPLEX BILATERAL"
+  ],
+  "NM": [
+    "- NM BONE SCAN WHOLE BODY",
+    "- NM MYOCARDIAL PERFUSION STRESS",
+    "- NM THYROID UPTAKE SCAN",
+    "- NM RENAL SCAN W LASIX",
+    "- NM LUNG PERFUSION SCAN",
+    "- NM HEPATOBILIARY SCAN"
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "_README": [
+    "=== GENERATION RATES — HOT-RELOADABLE ===",
+    "",
+    "This file controls how many new studies are created on each 30-second tick.",
+    "The system re-reads this file every 30 seconds.",
+    "",
+    "studies_per_tick: on each tick, a random number between min and max new studies are created.",
+    "active_worklist_max_size: if the active worklist already has this many studies, no new ones are created.",
+    "tick_interval_seconds: how often the background loop runs (default 30)."
+  ],
+
+  "studies_per_tick": {
+    "min": 0,
+    "max": 3,
+    "_comment": "Create 0 to 3 new studies every 30 seconds."
+  },
+
+  "active_worklist_max_size": 200,
+  "tick_interval_seconds": 30
+}

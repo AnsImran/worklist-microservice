@@ -1,0 +1,112 @@
+{
+  "_README": [
+    "=====================================================================",
+    "  DEMAND SYSTEM — Inject Custom Studies into the Worklist",
+    "=====================================================================",
+    "",
+    "WHAT IS THIS?",
+    "  This file lets you tell the system: 'I want a specific exam to appear",
+    "  in the worklist with specific characteristics and specific timing.'",
+    "  The system checks this file every 30-60 seconds. Any new (unprocessed)",
+    "  requests will be picked up and executed automatically.",
+    "",
+    "HOW TO ADD A NEW DEMAND:",
+    "  1. Add a new entry to the 'requests' array below.",
+    "  2. Give it a unique 'id' (any string, e.g., 'demand-001').",
+    "  3. Set 'processed' to false (the system sets it to true after handling).",
+    "  4. Fill in the 'study' object with the exam characteristics you want.",
+    "  5. Optionally set 'lifecycle_overrides' to control timing.",
+    "  6. Optionally set 'cancel_at_stage' to cancel the exam at a specific stage.",
+    "  7. Save the file. The system will pick it up within 30-60 seconds.",
+    "",
+    "STUDY FIELDS (all are OPTIONAL — anything you don't specify will be randomly generated):",
+    "  - patient_name: The patient's name (e.g., 'Smith, John A')",
+    "  - modality: The imaging type. Must be one of: CT, CR, DX, MR, US, NM",
+    "  - study_description: Short description (e.g., 'CT BRAIN STROKE W/O CONTRAST')",
+    "  - priority: A number from 1 to 10 (10 = most urgent)",
+    "",
+    "LIFECYCLE OVERRIDES (all are OPTIONAL — values are in SECONDS):",
+    "  These let you control exactly how fast the exam moves through each stage.",
+    "  If you don't set these, the system uses random delays from lifecycle.json.",
+    "  - Introduced_to_Assigned: Seconds before it gets assigned to a radiologist",
+    "  - Assigned_to_Reading: Seconds before the radiologist starts reading",
+    "  - Reading_to_Pending_Approval: Seconds before it's submitted for approval",
+    "  - Pending_Approval_to_Approved: Seconds before final approval",
+    "",
+    "CANCEL AT STAGE (OPTIONAL):",
+    "  Set this to cancel the exam at a specific stage instead of approving it.",
+    "  Must be one of: 'Introduced', 'Assigned', 'Reading', 'Pending Approval'",
+    "  Example: 'cancel_at_stage': 'Reading' means the exam will be cancelled",
+    "  while it is being read, before it reaches approval.",
+    "",
+    "IMPORTANT NOTES:",
+    "  - You never need to delete old entries. Just add new ones at the bottom.",
+    "  - The system marks processed entries as 'processed: true' automatically.",
+    "  - If you want to re-run a demand, change its 'id' and set 'processed' to false.",
+    "  - Times are in REAL wall-clock seconds. If you say 120, it really waits 2 minutes.",
+    "====================================================================="
+  ],
+
+  "_examples": [
+    {
+      "_description": "EXAMPLE 1: A simple exam that goes through the full lifecycle with default timing.",
+      "id": "example-simple",
+      "processed": false,
+      "action": "inject_study",
+      "study": {
+        "modality": "CT",
+        "priority": 5
+      }
+    },
+    {
+      "_description": "EXAMPLE 2: A STAT stroke exam. Assigned in 30 seconds, read in 1 minute, approved in 2 minutes total.",
+      "id": "example-stat-stroke",
+      "processed": false,
+      "action": "inject_study",
+      "study": {
+        "patient_name": "Doe, John A",
+        "modality": "CT",
+        "study_description": "- CT BRAIN STROKE W/O CONTRAST",
+        "priority": 10
+      },
+      "lifecycle_overrides": {
+        "Introduced_to_Assigned": 30,
+        "Assigned_to_Reading": 30,
+        "Reading_to_Pending_Approval": 60,
+        "Pending_Approval_to_Approved": 30
+      }
+    },
+    {
+      "_description": "EXAMPLE 3: An MR exam that gets CANCELLED during the reading stage.",
+      "id": "example-cancelled",
+      "processed": false,
+      "action": "inject_study",
+      "study": {
+        "modality": "MR",
+        "study_description": "- MRI BRAIN W/O CONTRAST",
+        "priority": 5
+      },
+      "cancel_at_stage": "Reading"
+    },
+    {
+      "_description": "EXAMPLE 4: A specific patient exam with custom timing at every stage.",
+      "id": "example-full-custom",
+      "processed": false,
+      "action": "inject_study",
+      "study": {
+        "patient_name": "Garcia, Maria L",
+        "modality": "US",
+        "study_description": "- US ABDOMEN COMPLETE",
+        "priority": 7
+      },
+      "lifecycle_overrides": {
+        "Introduced_to_Assigned": 60,
+        "Assigned_to_Reading": 45,
+        "Reading_to_Pending_Approval": 180,
+        "Pending_Approval_to_Approved": 90
+      }
+    }
+  ],
+
+  "requests": []
+}

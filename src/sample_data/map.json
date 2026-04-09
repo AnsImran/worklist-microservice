@@ -1,0 +1,270 @@
+{
+  "description": "Mapping of screenshots and data files to their source views in the Konica Exa PACS system",
+  "system": "Konica Exa PACS",
+  "base_url": "renew.myexa.cloud",
+  "views": {
+    "worklist": "renew.myexa.cloud/exa#home/studies/all",
+    "audit_log": "renew.myexa.cloud/exa#setup/auditLog/all"
+  },
+  "csv_files": {
+    "All Studies 1000 southern hills konica exa-1-20260408_0750.csv": {
+      "tab": "ALL STUDIES",
+      "facility_filter": "Southern Hills",
+      "stat_filter": "Stroke",
+      "record_count": "100 of 471,143",
+      "timestamp": "2026-04-08 07:50",
+      "screenshots": [
+        {
+          "file": "screenhsot (1).png",
+          "description": "ALL STUDIES tab - left columns: Status, Account No., Patient, Accession No., Approving Physician. Shows Approved studies with purple row highlighting. Patients visible: Goldberg Joshua David, Mcconnell Robert John, Delgado Marleny, Truong Hoang, Saunders Sue Ann."
+        },
+        {
+          "file": "screenhsot (2).png",
+          "description": "ALL STUDIES tab - middle columns: Approved Date, Modality, Study Description, Study Date, Study Received Date, Study Flag, IMGS, Referring Physician. Shows CT Brain Stroke W/O Contrast, CT Angio Head, CT Brain W/O Contrast, CT Angio Brain Perfusion studies."
+        },
+        {
+          "file": "screenhsot (3).png",
+          "description": "ALL STUDIES tab - right columns: Study Flag, IMGS, Referring Physician, Facility, Institution, DOB, Stat, Priority. Shows all studies are from Southern Hills Hospital with Stat column showing 'Stroke'."
+        }
+      ]
+    },
+    "Today Unread - All Hospitals - 195-7-20260408_0753.csv": {
+      "tab": "TODAY",
+      "facility_filter": "All Hospitals",
+      "stat_filter": null,
+      "record_count": "195 of 195",
+      "timestamp": "2026-04-08 07:53",
+      "screenshots": [
+        {
+          "file": "screenhsot (4).png",
+          "description": "TODAY UNREAD tab - shows 0 records found (Showing 0 of 0). This is the TODAY UNREAD tab (different from TODAY tab) demonstrating that no unread studies exist for the currently selected filter at this moment."
+        },
+        {
+          "file": "screenhsot (5).png",
+          "description": "TODAY tab - left columns: Status, Account No., Patient, Accession No., Approving Physician. Shows Check-In status studies with red/pink row highlighting. Patients visible: Sisson Clark B, Lopez Briana G, Scott-Wilson Vanessa D, Osborn Trudy J, Sapp-Macen Allen, Altman Jib Taylor, Araujan-Pablo Norma Edquid. Showing 195 of 195."
+        },
+        {
+          "file": "screenhsot (6).png",
+          "description": "TODAY tab - Status filter dropdown open showing filter options: Appointment Status (Scheduled, Arrived, Rescheduled, Confirmed, Checked-In, Checked-Out, Cancelled, Aborted, No-Shows, Pre-Checkin, Assigned, No Shows), Study Progress (Start, Pause, End), Rad Status (Incomplete, Read, Dictated, Transcribed, Pre-Approved, Approved, Draft, Addendum, Transcribed-Addendum, Request_Adde..., Local Read, New/SE, Cancelled, New/SE-Send, Prior, New/SE-Send/P, Addendum)."
+        }
+      ]
+    },
+    "unread all southern hills - 17 - live snapshot of worklist-10-20260408_0756.csv": {
+      "tab": "UNREAD ALL",
+      "facility_filter": "Southern Hills",
+      "stat_filter": null,
+      "record_count": "17 of 17",
+      "timestamp": "2026-04-08 07:56",
+      "screenshots": [
+        {
+          "file": "screenhsot (7).png",
+          "description": "UNREAD ALL tab - left columns: Status, Account No., Patient, Accession No., Approving Physician. Shows Unread status studies with red/teal row highlighting. Patients visible: Macchiavello Italo, Wallen Carol Lee (2 studies), Williams Benjamin D, Kulk Lynda Anne, Lopez Leanna, Moord Michael John. Showing 17 of 17."
+        },
+        {
+          "file": "screenhsot (8).png",
+          "description": "UNREAD ALL tab - middle columns: Approving Physician, Approved Date, Modality, Study Description, Study Date, Study Received Date. Shows CT and CR/CR,DX modalities including Lumbar Spine, Thorax Lung, Neck, Chest PA Lateral Preop, Chest AP Portable studies."
+        },
+        {
+          "file": "screenhsot (9).png",
+          "description": "UNREAD ALL tab - right columns: Study Flag, IMGS, Referring Physician, Facility, Institution, DOB, Stat, Priority. Shows all from Southern Hills Hospital with OP/IP flags and STAT priorities."
+        },
+        {
+          "file": "screenhsot (13).png",
+          "description": "UNREAD ALL tab - Modality filter dropdown open (top half) showing options: All, BR, CF, CR, CT, DX, IR, MG, MR, NM, OT, PT. Showing 19 of 19 (live count increased from 17 since snapshot was taken)."
+        },
+        {
+          "file": "screenhsot (14).png",
+          "description": "UNREAD ALL tab - Modality filter dropdown open (bottom half) showing options: DX, IR, MG, MR, NM, OT, PT, RAD, RF, RT, SC, SP, US. Showing 19 of 19."
+        },
+        {
+          "file": "screenhsot (15).png",
+          "description": "UNREAD ALL tab - Priority dropdown open showing Stat-based options: All, Escalate, STAT, Super STAT, Stroke. Shows right columns with Facility, Institution, DOB, Stat, Priority. Showing 19 of 19."
+        },
+        {
+          "file": "screenhsot (16).png",
+          "description": "UNREAD ALL tab - Priority dropdown open showing urgency-based options: All, High, Medium, Low. Shows same right columns view. Showing 19 of 19."
+        }
+      ]
+    },
+    "last 2 days southern hills prior - 13-13-20260408_0758.csv": {
+      "tab": "LAST 2 DAYS",
+      "facility_filter": "Southern Hills",
+      "stat_filter": null,
+      "record_count": "13 of 13",
+      "timestamp": "2026-04-08 07:58",
+      "screenshots": [
+        {
+          "file": "screenhsot (10).png",
+          "description": "LAST 2 DAYS tab - left columns: Status, Account No., Patient, Accession No., Approving Physician. Shows Prior status studies with dark row styling. Patients visible: Paliza Samuel Alejandro, Eytcheson Camille, Hall Kelly, Butch Nicholas, Kaut Gurbaux, Ringler Aerin Jane, Mcconnell Robert John. Showing 13 of 13."
+        },
+        {
+          "file": "screenhsot (11).png",
+          "description": "LAST 2 DAYS tab - middle columns: Approved Date, Modality, Study Description, Study Date, Study Received Date, Study Flag, IMGS, Referring Physician. Shows CR, DX, CT modalities including Femur, Elbow, Image Intensifier, Abdomen AP, Abdomen AP Only, CT Angio Neck studies."
+        },
+        {
+          "file": "screenhsot (12).png",
+          "description": "LAST 2 DAYS tab - right columns: Study Flag, IMGS, Referring Physician, Facility, Institution, DOB, Stat, Priority. All studies from Southern Hills Hospital with various referring physicians."
+        }
+      ]
+    }
+  },
+  "columns_in_csv": [
+    "Status",
+    "Account#",
+    "Patient",
+    "Accession #",
+    "Approving Physician",
+    "Approved Date",
+    "Modality",
+    "Study Description",
+    "Study Date",
+    "Study Received Date",
+    "Study Flag",
+    "IMGS",
+    "Ref.Physician",
+    "Facility",
+    "Institution",
+    "DOB",
+    "Stat",
+    "Priority",
+    "Modality PR",
+    "Study Description PR",
+    "Facility PR",
+    "Age-Time of Study PR",
+    "Gender PR",
+    "Reason for Study PR",
+    "Agreement level",
+    "Review notes",
+    "Peer Reviewing Physician",
+    "Approving Physician PR"
+  ],
+  "filter_options_captured": {
+    "status_filters": {
+      "appointment_status": ["Scheduled", "Arrived", "Rescheduled", "Confirmed", "Checked-In", "Checked-Out", "Cancelled", "Aborted", "No-Shows", "Pre-Checkin", "Assigned", "No Shows"],
+      "study_progress": ["Start", "Pause", "End"],
+      "rad_status": ["Incomplete", "Read", "Dictated", "Transcribed", "Pre-Approved", "Approved", "Draft", "Addendum", "Transcribed-Addendum", "Request_Addendum", "Local Read", "New/SE", "Cancelled", "New/SE-Send", "Prior", "New/SE-Send/P", "Addendum"]
+    },
+    "modality_options": ["All", "BR", "CF", "CR", "CT", "DX", "IR", "MG", "MR", "NM", "OT", "PT", "RAD", "RF", "RT", "SC", "SP", "US"],
+    "priority_options": {
+      "stat_based": ["All", "Escalate", "STAT", "Super STAT", "Stroke"],
+      "urgency_based": ["All", "High", "Medium", "Low"]
+    }
+  },
+  "audit_log": {
+    "Audit Log - 2026-04-09.xlsx": {
+      "source_url": "renew.myexa.cloud/exa#setup/auditLog/all",
+      "description": "Complete event log capturing every action in the Exa PACS system. This is the full event stream that traces a study's entire lifecycle from order creation through final approval.",
+      "record_count": 39746,
+      "date_range": "2026-04-09",
+      "sheet": "table",
+      "columns": ["LOGGED DATE", "SCREEN", "USER", "PATIENT NAME", "LOG DESCRIPTION"],
+      "available_log_tabs_in_ui": ["AUDIT LOG", "PEER REVIEW LOG", "USER LOG", "API LOG", "MWHERE LOG", "ELIGIBILITY LOG"],
+      "bookmarks_bar_visible": ["NewVue", "Exa Login", "Renew RVU Dashbo...", "RAD Numbers - Pri...", "Radiology Exam Vol...", "Synapse Sign-On", "TAT Report Sheet", "WhatsApp"],
+      "screen_types": {
+        "New Order": {
+          "count": 15038,
+          "description": "Study/order creation and updates from HL7 messages",
+          "sample_events": [
+            "Created study note.",
+            "Update: Study updated by hl7 for (accession#)",
+            "Update: Order updated from HL7",
+            "Add: New Study (description) created from {1} - order type: {2}"
+          ]
+        },
+        "Patient Info": {
+          "count": 5840,
+          "description": "Patient demographic updates",
+          "sample_events": ["Update: Patient (name) updated"]
+        },
+        "HL7": {
+          "count": 5075,
+          "description": "HL7 interface messages — study flag assignments (ER, IP, OP)",
+          "sample_events": [
+            "Change: Study Flag has been changed to (ER) from HL7",
+            "Change: Study Flag has been changed to (IP) from HL7",
+            "Change: Study Flag has been changed to (OP) from HL7"
+          ]
+        },
+        "QC 2 LIVE": {
+          "count": 4117,
+          "description": "Images received from DICOM, reconciled with orders, and moved to LIVE worklist",
+          "sample_events": [
+            "Study has been moved to LIVE. Accession#: X, Patient ID: Y, RULE: Southern Hills New Studies, AE Title: SHH_DFGWNEW",
+            "QC Study has been reconciled with Order. Accession#: X, Patient ID: Y, RULE: Z, AE Title: W, Order Accession#: X",
+            "Study has been moved to LIVE. ... RULE: Southern Hills Prior Studies, AE Title: SHH_DFGWPRIOR"
+          ]
+        },
+        "Studies": {
+          "count": 3681,
+          "description": "Study status changes — the core lifecycle transitions (Unread → Approved, etc.)",
+          "sample_events": [
+            "Reset: Study (accession) status has been changed (Unread) to (Approved) by user (HL7 (System generated))",
+            "Reset: Study (accession) status has been changed (description) to (Unread) by user (name)"
+          ]
+        },
+        "Hl7 Trigger": {
+          "count": 2937,
+          "description": "HL7 messages queued for downstream systems (e.g., NewVue)",
+          "sample_events": ["Add: {0}: Patient (id) has been added in HL7 Queue"]
+        },
+        "Viewer": {
+          "count": 1584,
+          "description": "Radiologist opened a study in the DICOM viewer",
+          "sample_events": ["Viewer opened. Accession#: X, Study Date: Y"]
+        },
+        "Transcription": {
+          "count": 821,
+          "description": "Radiology report dictated and saved",
+          "sample_events": ["Add: Transcription saved for study (accession)"]
+        },
+        "EXA Logout": {
+          "count": 277,
+          "description": "User session logout events"
+        },
+        "Orders": {
+          "count": 148,
+          "description": "Order cancellations and modifications"
+        },
+        "Worklist": {
+          "count": 89,
+          "description": "Approved report viewed from worklist"
+        },
+        "Reset Stacks": {
+          "count": 41,
+          "description": "Study annotation updates"
+        },
+        "Login Failure": {
+          "count": 27,
+          "description": "Failed login attempts"
+        },
+        "Other": {
+          "types": ["Providers", "User Settings", "Billing - Documents & Reports", "Study Reconciliation", "Patient Merge", "QC Worklist", "Reports", "Study Merge/Split", "Users", "HL7 Queue", "Edit Study"],
+          "description": "Less frequent administrative and maintenance events"
+        }
+      },
+      "top_users": {
+        "Admin, Pacs": {"count": 28266, "role": "System/HL7 automated actions"},
+        "System (EXA)": {"count": 7105, "role": "Exa system automated actions"},
+        "Quach, Ping M.D.": {"count": 425, "role": "Radiologist"},
+        "Reed, Kimberly": {"count": 386, "role": "Technologist/Staff"},
+        "Wright, Joshua M.D.": {"count": 380, "role": "Radiologist"},
+        "Khan, Abrar M.D.": {"count": 292, "role": "Radiologist"}
+      },
+      "study_lifecycle_flow": [
+        "1. New Order — HL7 order received, study and patient created",
+        "2. HL7 — Study flag set (ER/IP/OP)",
+        "3. QC 2 LIVE — DICOM images arrive, reconciled with order, moved to LIVE worklist (status: Unread)",
+        "4. Viewer — Radiologist opens study in viewer",
+        "5. Transcription — Report dictated/saved",
+        "6. Studies — Status changed to Approved",
+        "7. Hl7 Trigger — Result sent to downstream systems"
+      ],
+      "screenshots": [
+        {
+          "file": "screenhsot (17).png",
+          "description": "Audit Log view at renew.myexa.cloud/exa#setup/auditLog/all. Shows LOG section with tabs: AUDIT LOG, PEER REVIEW LOG, USER LOG, API LOG, MWHERE LOG, ELIGIBILITY LOG. Date range filter (04/07/2026 12:00 AM to 04/09/2026 11:59 PM). Columns: LOGGED DATE, SCREEN, USER, PATIENT, LOG DESCRIPTION. Visible events include QC 2 LIVE moves, Studies status changes, Reports queries, New Order creations, HL7 flag changes. Has EXPORT TO EXCEL and RELOAD buttons. Bookmarks bar shows NewVue, Exa Login, Renew RVU Dashboard, RAD Numbers, Radiology Exam Volume, Synapse Sign-On, TAT Report Sheet, WhatsApp."
+        }
+      ]
+    }
+  }
+}

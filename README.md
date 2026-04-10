@@ -6,7 +6,7 @@ Other services can connect to this API to get a live, constantly-updating workli
 
 ---
 
-## What Does This Do?
+## What Does This Do ?
 
 Imagine a hospital radiology department. Patients come in, get imaging exams (CT scans, X-rays, MRIs, etc.), and those exams appear on a **worklist** — a screen that radiologists look at to know what they need to read next.
 

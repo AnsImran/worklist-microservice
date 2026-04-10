@@ -56,19 +56,31 @@ class Study(BaseModel):
         return data
 
 
-class StudyCreate(BaseModel):
-    """Request body for manually creating a study via POST /studies."""
-
-    patient_name: str | None = None
-    mrn: str | None = None
-    modality: str | None = None
-    study_description: str | None = None
-    priority: int | None = Field(default=None, ge=1, le=10)
-    rvu: float | None = None
-    extra_fields: dict[str, Any] = Field(default_factory=dict)
-
-
 class StudyStatusUpdate(BaseModel):
-    """Request body for PUT /studies/{accession}/status."""
+    """Manually change a study's status.
 
-    status: str
+    Valid transitions follow the lifecycle order:
+      Introduced  -> Assigned  or Cancelled
+      Assigned    -> Reading   or Cancelled
+      Reading     -> Pending Approval or Cancelled
+      Pending Approval -> Approved or Cancelled
+    """
+
+    model_config = {
+        "json_schema_extra": {
+            "examples": [
+                {"status": "Assigned"},
+            ]
+        }
+    }
+
+    status: str = Field(
+        description=(
+            "Target status. Valid transitions: "
+            "Introduced -> Assigned or Cancelled | "
+            "Assigned -> Reading or Cancelled | "
+            "Reading -> Pending Approval or Cancelled | "
+            "Pending Approval -> Approved or Cancelled"
+        ),
+        examples=["Assigned", "Reading", "Pending Approval", "Approved", "Cancelled"],
+    )

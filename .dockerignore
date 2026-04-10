@@ -1,0 +1,16 @@
+.git
+.venv
+__pycache__
+*.pyc
+*.pyo
+credentials
+*.pem
+.env
+data/db
+temp
+scripts
+docs
+*.md
+.github
+.gitignore
+.python-version

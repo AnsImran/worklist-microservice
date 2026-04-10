@@ -15,6 +15,7 @@ credentials/
 *.key
 .env
 .env.*
+frontend/.streamlit/secrets.toml
 
 # Runtime database files (regenerated on startup)
 data/db/

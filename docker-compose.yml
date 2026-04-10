@@ -1,0 +1,35 @@
+services:
+  worklist-api:
+    image: ghcr.io/ansimran/worklist-microservice/worklist-api:latest
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    container_name: worklist-api
+    volumes:
+      - worklist-db:/app/data/db              # Persist runtime DB across restarts
+      - worklist-demand:/app/demand            # Persist demand file
+    networks:
+      - worklist-net
+    restart: unless-stopped
+
+  worklist-frontend:
+    image: ghcr.io/ansimran/worklist-microservice/worklist-frontend:latest
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    container_name: worklist-frontend
+    environment:
+      API_BASE_URL: http://worklist-api:8000   # Internal Docker DNS
+    ports:
+      - "8502:8501"                            # 8501 is taken by teams dashboard
+    networks:
+      - worklist-net
+    restart: unless-stopped
+
+volumes:
+  worklist-db:                                 # Active worklist, archive, audit log
+  worklist-demand:                             # Demand injection file
+
+networks:
+  worklist-net:
+    driver: bridge

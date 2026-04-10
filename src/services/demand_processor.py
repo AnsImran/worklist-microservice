@@ -58,11 +58,15 @@ class DemandProcessor:
                 continue
 
             if req.action == "inject_study":
-                self._inject_study(req)
+                try:
+                    self._inject_study(req)
+                except Exception:
+                    logger.exception("Failed to inject study for demand %s", req.id)
+                    continue  # Don't mark as processed — retry next tick
             else:
                 logger.warning("Unknown demand action: %s", req.action)
 
-            # Mark as processed in the raw data
+            # Mark as processed in the raw data (only reached on success)
             requests[i]["processed"] = True
             any_processed = True
             logger.info("Processed demand: %s", req.id)

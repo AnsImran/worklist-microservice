@@ -41,66 +41,69 @@ class LifecycleEngine:
         to_archive: list[str] = []
 
         for accession, study in list(self.store.active_studies.items()):
-            if study.status in TERMINAL_STATUSES:
-                to_archive.append(accession)
-                continue
-
-            timeline = study.timeline
-
-            # Check for cancellation first
-            if (
-                timeline.will_be_cancelled_at
-                and timeline.cancel_at_stage == study.status
-                and now >= timeline.will_be_cancelled_at
-            ):
-                old_status = study.status
-                study.status = "Cancelled"
-                self.audit_logger.log_status_change(
-                    accession, study.patient_name, old_status, "Cancelled"
-                )
-                to_archive.append(accession)
-                continue
-
-            # Check for normal transitions
-            transitioned = True
-            while transitioned:
-                transitioned = False
-
-                if study.status == "Introduced" and timeline.will_be_assigned_at and now >= timeline.will_be_assigned_at:
-                    self._transition_to_assigned(study, now)
-                    transitioned = True
-
-                elif study.status == "Assigned" and timeline.will_start_reading_at and now >= timeline.will_start_reading_at:
-                    old = study.status
-                    study.status = "Reading"
-                    self.audit_logger.log_status_change(accession, study.patient_name, old, "Reading")
-                    transitioned = True
-
-                elif study.status == "Reading" and timeline.will_be_pending_approval_at and now >= timeline.will_be_pending_approval_at:
-                    old = study.status
-                    study.status = "Pending Approval"
-                    self.audit_logger.log_status_change(accession, study.patient_name, old, "Pending Approval")
-                    transitioned = True
-
-                elif study.status == "Pending Approval" and timeline.will_be_approved_at and now >= timeline.will_be_approved_at:
-                    old = study.status
-                    study.status = "Approved"
-                    self.audit_logger.log_status_change(accession, study.patient_name, old, "Approved")
+            try:
+                if study.status in TERMINAL_STATUSES:
                     to_archive.append(accession)
-                    transitioned = False  # Terminal — stop
+                    continue
 
-                # Re-check cancellation after each transition
+                timeline = study.timeline
+
+                # Check for cancellation first
                 if (
-                    transitioned
-                    and timeline.will_be_cancelled_at
+                    timeline.will_be_cancelled_at
                     and timeline.cancel_at_stage == study.status
                     and now >= timeline.will_be_cancelled_at
                 ):
-                    old = study.status
+                    old_status = study.status
                     study.status = "Cancelled"
-                    self.audit_logger.log_status_change(accession, study.patient_name, old, "Cancelled")
+                    self.audit_logger.log_status_change(
+                        accession, study.patient_name, old_status, "Cancelled"
+                    )
                     to_archive.append(accession)
-                    break
+                    continue
+
+                # Check for normal transitions
+                transitioned = True
+                while transitioned:
+                    transitioned = False
+
+                    if study.status == "Introduced" and timeline.will_be_assigned_at and now >= timeline.will_be_assigned_at:
+                        self._transition_to_assigned(study, now)
+                        transitioned = True
+
+                    elif study.status == "Assigned" and timeline.will_start_reading_at and now >= timeline.will_start_reading_at:
+                        old = study.status
+                        study.status = "Reading"
+                        self.audit_logger.log_status_change(accession, study.patient_name, old, "Reading")
+                        transitioned = True
+
+                    elif study.status == "Reading" and timeline.will_be_pending_approval_at and now >= timeline.will_be_pending_approval_at:
+                        old = study.status
+                        study.status = "Pending Approval"
+                        self.audit_logger.log_status_change(accession, study.patient_name, old, "Pending Approval")
+                        transitioned = True
+
+                    elif study.status == "Pending Approval" and timeline.will_be_approved_at and now >= timeline.will_be_approved_at:
+                        old = study.status
+                        study.status = "Approved"
+                        self.audit_logger.log_status_change(accession, study.patient_name, old, "Approved")
+                        to_archive.append(accession)
+                        transitioned = False  # Terminal — stop
+
+                    # Re-check cancellation after each transition
+                    if (
+                        transitioned
+                        and timeline.will_be_cancelled_at
+                        and timeline.cancel_at_stage == study.status
+                        and now >= timeline.will_be_cancelled_at
+                    ):
+                        old = study.status
+                        study.status = "Cancelled"
+                        self.audit_logger.log_status_change(accession, study.patient_name, old, "Cancelled")
+                        to_archive.append(accession)
+                        break
+            except Exception:
+                logger.exception("Error advancing study %s, skipping", accession)
 
         # Archive terminal studies
         for accession in to_archive:

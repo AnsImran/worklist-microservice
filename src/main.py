@@ -11,12 +11,15 @@ Run with: uv run uvicorn src.main:app --host 0.0.0.0 --port 8000
 import asyncio
 import json
 import logging
+import traceback
 from contextlib import asynccontextmanager
 from typing import AsyncIterator
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
 
 from src.api.routes_audit import router as audit_router
+from src.api.routes_demand import router as demand_router
 from src.api.routes_health import router as health_router
 from src.api.routes_history import router as history_router
 from src.api.routes_studies import router as studies_router
@@ -102,9 +105,20 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+# Global exception handler — safety net for any unhandled error
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception) -> JSONResponse:
+    logger.error("Unhandled exception on %s %s: %s", request.method, request.url.path, exc)
+    logger.debug(traceback.format_exc())
+    return JSONResponse(
+        status_code=500,
+        content={"error": "Internal server error", "detail": str(exc)},
+    )
+
 # Register routers
 app.include_router(health_router)
 app.include_router(worklist_router)
 app.include_router(history_router)
 app.include_router(audit_router)
 app.include_router(studies_router)
+app.include_router(demand_router)

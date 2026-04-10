@@ -1,7 +1,7 @@
 {
   "_README": [
     "=====================================================================",
-    "  DEMAND SYSTEM — Inject Custom Studies into the Worklist",
+    "  DEMAND SYSTEM \u2014 Inject Custom Studies into the Worklist",
     "=====================================================================",
     "",
     "WHAT IS THIS?",
@@ -19,13 +19,13 @@
     "  6. Optionally set 'cancel_at_stage' to cancel the exam at a specific stage.",
     "  7. Save the file. The system will pick it up within 30-60 seconds.",
     "",
-    "STUDY FIELDS (all are OPTIONAL — anything you don't specify will be randomly generated):",
+    "STUDY FIELDS (all are OPTIONAL \u2014 anything you don't specify will be randomly generated):",
     "  - patient_name: The patient's name (e.g., 'Smith, John A')",
     "  - modality: The imaging type. Must be one of: CT, CR, DX, MR, US, NM",
     "  - study_description: Short description (e.g., 'CT BRAIN STROKE W/O CONTRAST')",
     "  - priority: A number from 1 to 10 (10 = most urgent)",
     "",
-    "LIFECYCLE OVERRIDES (all are OPTIONAL — values are in SECONDS):",
+    "LIFECYCLE OVERRIDES (all are OPTIONAL \u2014 values are in SECONDS):",
     "  These let you control exactly how fast the exam moves through each stage.",
     "  If you don't set these, the system uses random delays from lifecycle.json.",
     "  - Introduced_to_Assigned: Seconds before it gets assigned to a radiologist",
@@ -46,7 +46,6 @@
     "  - Times are in REAL wall-clock seconds. If you say 120, it really waits 2 minutes.",
     "====================================================================="
   ],
-
   "_examples": [
     {
       "_description": "EXAMPLE 1: A simple exam that goes through the full lifecycle with default timing.",
@@ -107,6 +106,27 @@
       }
     }
   ],
-
-  "requests": []
+  "requests": [
+    {
+      "id": "demand-dbcb2e35",
+      "processed": true,
+      "action": "inject_study",
+      "study": {
+        "modality": "CT",
+        "priority": 10
+      }
+    },
+    {
+      "id": "demand-aa20ccd4",
+      "processed": true,
+      "action": "inject_study",
+      "study": {
+        "modality": "CT",
+        "priority": 10
+      },
+      "lifecycle_overrides": {
+        "Introduced_to_Assigned": 10
+      }
+    }
+  ]
 }

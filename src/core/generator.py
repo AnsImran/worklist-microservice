@@ -46,6 +46,7 @@ class StudyGenerator:
         overrides: dict[str, Any] | None = None,
         lifecycle_overrides: dict[str, int] | None = None,
         cancel_at_stage: str | None = None,
+        introduced_at: datetime | None = None,
     ) -> Study:
         """Generate a single new study.
 
@@ -53,9 +54,11 @@ class StudyGenerator:
             overrides: Field values to use instead of generating. For demand system.
             lifecycle_overrides: Custom transition delays in seconds. For demand system.
             cancel_at_stage: If set, study will be cancelled at this stage.
+            introduced_at: Anchor timestamp for when the study enters the worklist.
+                           Defaults to now. All timeline transitions are computed relative to this.
         """
         overrides = overrides or {}
-        now = datetime.now(timezone.utc)
+        now = introduced_at or datetime.now(timezone.utc)
 
         # Step 1: Generate all field values using the field registry
         context: dict[str, Any] = {}

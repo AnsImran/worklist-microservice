@@ -195,6 +195,12 @@ def _create_one_study(
 @router.post(
     "",
     summary="Create a single study",
+    description=(
+        "Create a new study in the worklist with full control over its characteristics and lifecycle timing. "
+        "All fields are optional — omitted study fields are randomly generated from the configured pools. "
+        "Omitted lifecycle overrides use the default random timing from lifecycle.json. "
+        "The study is created immediately and appears in the active worklist right away."
+    ),
     responses={
         200: {
             "content": {
@@ -238,6 +244,11 @@ def create_demand(
 @router.post(
     "/batch",
     summary="Create multiple studies in one call",
+    description=(
+        "Create multiple studies in a single API call. Each item in the list follows "
+        "the same schema as POST /demand (single study). All studies are created immediately. "
+        "Useful for seeding the worklist with test data or simulating a batch of incoming exams."
+    ),
     responses={
         200: {
             "content": {

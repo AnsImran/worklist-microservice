@@ -29,9 +29,10 @@ class AuditLogger:
         patient_name: str,
         description: str,
         user: str = "System (Simulator)",
+        logged_date: datetime | None = None,
     ) -> None:
         entry = AuditEntry(
-            logged_date=datetime.now(timezone.utc),
+            logged_date=logged_date or datetime.now(timezone.utc),
             screen=screen,
             user=user,
             patient_name=patient_name,
@@ -49,23 +50,35 @@ class AuditLogger:
         )
 
     def log_status_change(
-        self, accession: str, patient: str, old_status: str, new_status: str
+        self,
+        accession: str,
+        patient: str,
+        old_status: str,
+        new_status: str,
+        logged_date: datetime | None = None,
     ) -> None:
         self.log(
             screen="Studies",
             accession_number=accession,
             patient_name=patient,
             description=f"Status changed from ({old_status}) to ({new_status})",
+            logged_date=logged_date,
         )
 
     def log_assignment(
-        self, accession: str, patient: str, radiologist: str, assigned_by: str
+        self,
+        accession: str,
+        patient: str,
+        radiologist: str,
+        assigned_by: str,
+        logged_date: datetime | None = None,
     ) -> None:
         self.log(
             screen="Assignment",
             accession_number=accession,
             patient_name=patient,
             description=f"Assigned to ({radiologist}) by ({assigned_by})",
+            logged_date=logged_date,
         )
 
     def log_demand_injected(self, accession: str, patient: str, demand_id: str) -> None:

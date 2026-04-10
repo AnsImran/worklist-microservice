@@ -124,16 +124,16 @@ class StudyGenerator:
             if key not in core_field_names and value is not None:
                 extra_fields[key] = value
 
-        # Step 5: Build the Study object
+        # Step 5: Build the Study object (use `or` to catch both missing keys and None values)
         study = Study(
-            accession_number=context.get("accession_number", "UNKNOWN"),
-            patient_name=context.get("patient_name", "Unknown Patient"),
-            mrn=context.get("mrn", "UNKNOWN"),
-            dob=context.get("dob", "01/01/2000"),
-            modality=context.get("modality", "CT"),
-            study_description=context.get("study_description", "Unknown Study"),
-            priority=context.get("priority", 5),
-            rvu=context.get("rvu", 1.0),
+            accession_number=context.get("accession_number") or "UNKNOWN",
+            patient_name=context.get("patient_name") or "Unknown Patient",
+            mrn=context.get("mrn") or "UNKNOWN",
+            dob=context.get("dob") or "01/01/2000",
+            modality=context.get("modality") or "CT",
+            study_description=context.get("study_description") or "Unknown Study",
+            priority=context.get("priority") or 5,
+            rvu=context.get("rvu") or 1.0,
             status="Introduced",
             study_introduced_at=now,
             timeline=timeline,

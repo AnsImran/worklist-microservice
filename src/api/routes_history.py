@@ -17,6 +17,11 @@ router = APIRouter(prefix="/history", tags=["history"])
 @router.get(
     "",
     summary="Get archived studies with optional filters",
+    description=(
+        "Returns studies that have reached a terminal status (Approved or Cancelled) "
+        "and moved to the archive. Supports filtering by modality, final status, "
+        "patient name (partial match), and date range. Results are paginated."
+    ),
     responses={
         200: {
             "content": {
@@ -50,13 +55,41 @@ router = APIRouter(prefix="/history", tags=["history"])
 )
 def get_history(
     store: DataStore = Depends(get_store),
-    modality: str | None = Query(None, description="Filter by modality"),
-    status: str | None = Query(None, description="Filter by final status (Approved/Cancelled)"),
-    patient_name: str | None = Query(None, description="Search by patient name (partial match)"),
-    date_from: datetime | None = Query(None, description="Start of date range (ISO format)"),
-    date_to: datetime | None = Query(None, description="End of date range (ISO format)"),
-    limit: int = Query(100, ge=1, le=1000),
-    offset: int = Query(0, ge=0),
+    modality: str | None = Query(
+        None,
+        description="Filter by imaging modality.",
+        examples=["CT", "MR", "CR", "DX", "US", "NM"],
+    ),
+    status: str | None = Query(
+        None,
+        description="Filter by final status (only terminal statuses exist in archive).",
+        examples=["Approved", "Cancelled"],
+    ),
+    patient_name: str | None = Query(
+        None,
+        description="Search by patient name (case-insensitive partial match).",
+        examples=["Garcia"],
+    ),
+    date_from: datetime | None = Query(
+        None,
+        description="Start of date range filter on study_introduced_at (ISO 8601 format).",
+        examples=["2026-04-09T00:00:00Z"],
+    ),
+    date_to: datetime | None = Query(
+        None,
+        description="End of date range filter on study_introduced_at (ISO 8601 format).",
+        examples=["2026-04-10T23:59:59Z"],
+    ),
+    limit: int = Query(
+        100, ge=1, le=1000,
+        description="Maximum number of results to return (1–1000).",
+        examples=[100],
+    ),
+    offset: int = Query(
+        0, ge=0,
+        description="Number of results to skip for pagination.",
+        examples=[0],
+    ),
 ) -> dict[str, Any]:
     try:
         studies = list(store.archived_studies)

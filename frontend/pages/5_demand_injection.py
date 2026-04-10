@@ -105,4 +105,9 @@ if st.button("Submit Demand", type="primary", use_container_width=True):
     if "error" in result:
         st.error(f"Failed: {result['error']}")
     else:
-        st.success(f"Demand queued: **{result.get('id', 'unknown')}** — will appear in worklist within 30-60 seconds.")
+        study = result.get("study", {})
+        accession = study.get("accession_number", "unknown")
+        patient = study.get("patient_name", "unknown")
+        st.success(f"Study created: **{accession}** — {patient}")
+        with st.expander("Study details"):
+            st.json(study)

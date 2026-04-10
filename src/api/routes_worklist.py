@@ -54,6 +54,11 @@ router = APIRouter(prefix="/worklist", tags=["worklist"])
 )
 def get_worklist(
     store: DataStore = Depends(get_store),
+    accession_number: str | None = Query(
+        None,
+        description="Filter by accession number (exact match).",
+        examples=["COCSNV0000000001"],
+    ),
     modality: str | None = Query(
         None,
         description="Filter by imaging modality.",
@@ -88,6 +93,8 @@ def get_worklist(
     try:
         studies = list(store.active_studies.values())
 
+        if accession_number:
+            studies = [s for s in studies if s.accession_number == accession_number]
         if modality:
             studies = [s for s in studies if s.modality == modality]
         if status:

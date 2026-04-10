@@ -17,6 +17,11 @@ router = APIRouter(prefix="/audit", tags=["audit"])
 @router.get(
     "",
     summary="Get audit log entries with optional filters",
+    description=(
+        "Returns the full event log — every study creation, status change, assignment, "
+        "and demand injection is recorded here. Supports filtering by event type (screen), "
+        "user, accession number, and date range. Results are paginated."
+    ),
     responses={
         200: {
             "content": {
@@ -36,19 +41,19 @@ router = APIRouter(prefix="/audit", tags=["audit"])
                             },
                             {
                                 "logged_date": "2026-04-10T10:02:30Z",
-                                "screen": "Assignment",
-                                "user": "System (Worklist)",
-                                "patient_name": "Garcia, Maria L",
-                                "accession_number": "COCSNV0000000001",
-                                "log_description": "Study assigned to Wright, Joshua M.D. by Wright, Joshua M.D.",
-                            },
-                            {
-                                "logged_date": "2026-04-10T10:02:30Z",
                                 "screen": "Studies",
                                 "user": "System (Worklist)",
                                 "patient_name": "Garcia, Maria L",
                                 "accession_number": "COCSNV0000000001",
                                 "log_description": "Status changed from Introduced to Assigned",
+                            },
+                            {
+                                "logged_date": "2026-04-10T10:02:30Z",
+                                "screen": "Assignment",
+                                "user": "System (Worklist)",
+                                "patient_name": "Garcia, Maria L",
+                                "accession_number": "COCSNV0000000001",
+                                "log_description": "Study assigned to Wright, Joshua M.D. by Wright, Joshua M.D.",
                             },
                         ],
                     }
@@ -59,13 +64,41 @@ router = APIRouter(prefix="/audit", tags=["audit"])
 )
 def get_audit_log(
     store: DataStore = Depends(get_store),
-    screen: str | None = Query(None, description="Filter by event type (e.g., 'New Study', 'Studies')"),
-    user: str | None = Query(None, description="Filter by user"),
-    accession_number: str | None = Query(None, description="Filter by accession number"),
-    date_from: datetime | None = Query(None, description="Start of date range (ISO format)"),
-    date_to: datetime | None = Query(None, description="End of date range (ISO format)"),
-    limit: int = Query(100, ge=1, le=1000),
-    offset: int = Query(0, ge=0),
+    screen: str | None = Query(
+        None,
+        description="Filter by event type.",
+        examples=["New Study", "Studies", "Assignment", "Demand"],
+    ),
+    user: str | None = Query(
+        None,
+        description="Filter by user (case-insensitive partial match).",
+        examples=["System (Worklist)", "Wright"],
+    ),
+    accession_number: str | None = Query(
+        None,
+        description="Filter by accession number to see the full history of one study.",
+        examples=["COCSNV0000000001"],
+    ),
+    date_from: datetime | None = Query(
+        None,
+        description="Start of date range filter on logged_date (ISO 8601 format).",
+        examples=["2026-04-09T00:00:00Z"],
+    ),
+    date_to: datetime | None = Query(
+        None,
+        description="End of date range filter on logged_date (ISO 8601 format).",
+        examples=["2026-04-10T23:59:59Z"],
+    ),
+    limit: int = Query(
+        100, ge=1, le=1000,
+        description="Maximum number of results to return (1–1000).",
+        examples=[100],
+    ),
+    offset: int = Query(
+        0, ge=0,
+        description="Number of results to skip for pagination.",
+        examples=[0],
+    ),
 ) -> dict[str, Any]:
     try:
         entries = list(store.audit_entries)

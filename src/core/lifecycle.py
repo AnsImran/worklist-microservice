@@ -57,7 +57,8 @@ class LifecycleEngine:
                     old_status = study.status
                     study.status = "Cancelled"
                     self.audit_logger.log_status_change(
-                        accession, study.patient_name, old_status, "Cancelled"
+                        accession, study.patient_name, old_status, "Cancelled",
+                        logged_date=timeline.will_be_cancelled_at,
                     )
                     to_archive.append(accession)
                     continue
@@ -68,25 +69,34 @@ class LifecycleEngine:
                     transitioned = False
 
                     if study.status == "Introduced" and timeline.will_be_assigned_at and now >= timeline.will_be_assigned_at:
-                        self._transition_to_assigned(study, now)
+                        self._transition_to_assigned(study, timeline.will_be_assigned_at)
                         transitioned = True
 
                     elif study.status == "Assigned" and timeline.will_start_reading_at and now >= timeline.will_start_reading_at:
                         old = study.status
                         study.status = "Reading"
-                        self.audit_logger.log_status_change(accession, study.patient_name, old, "Reading")
+                        self.audit_logger.log_status_change(
+                            accession, study.patient_name, old, "Reading",
+                            logged_date=timeline.will_start_reading_at,
+                        )
                         transitioned = True
 
                     elif study.status == "Reading" and timeline.will_be_pending_approval_at and now >= timeline.will_be_pending_approval_at:
                         old = study.status
                         study.status = "Pending Approval"
-                        self.audit_logger.log_status_change(accession, study.patient_name, old, "Pending Approval")
+                        self.audit_logger.log_status_change(
+                            accession, study.patient_name, old, "Pending Approval",
+                            logged_date=timeline.will_be_pending_approval_at,
+                        )
                         transitioned = True
 
                     elif study.status == "Pending Approval" and timeline.will_be_approved_at and now >= timeline.will_be_approved_at:
                         old = study.status
                         study.status = "Approved"
-                        self.audit_logger.log_status_change(accession, study.patient_name, old, "Approved")
+                        self.audit_logger.log_status_change(
+                            accession, study.patient_name, old, "Approved",
+                            logged_date=timeline.will_be_approved_at,
+                        )
                         to_archive.append(accession)
                         transitioned = False  # Terminal — stop
 
@@ -99,7 +109,10 @@ class LifecycleEngine:
                     ):
                         old = study.status
                         study.status = "Cancelled"
-                        self.audit_logger.log_status_change(accession, study.patient_name, old, "Cancelled")
+                        self.audit_logger.log_status_change(
+                            accession, study.patient_name, old, "Cancelled",
+                            logged_date=timeline.will_be_cancelled_at,
+                        )
                         to_archive.append(accession)
                         break
             except Exception:
@@ -109,11 +122,11 @@ class LifecycleEngine:
         for accession in to_archive:
             self.store.archive_study(accession)
 
-    def _transition_to_assigned(self, study, now: datetime) -> None:
+    def _transition_to_assigned(self, study, assigned_at: datetime) -> None:
         """Handle the Introduced → Assigned transition (sets radiologist fields)."""
         old = study.status
         study.status = "Assigned"
-        study.assigned_at = now
+        study.assigned_at = assigned_at
 
         # Generate radiologist and assigned_by using field registry
         context = {"patient_name": study.patient_name, "modality": study.modality}
@@ -125,7 +138,8 @@ class LifecycleEngine:
                 study.assigned_by = self.field_registry.generate_value(field_def, context)
 
         self.audit_logger.log_status_change(
-            study.accession_number, study.patient_name, old, "Assigned"
+            study.accession_number, study.patient_name, old, "Assigned",
+            logged_date=assigned_at,
         )
         if study.assigned_radiologist:
             self.audit_logger.log_assignment(
@@ -133,4 +147,5 @@ class LifecycleEngine:
                 study.patient_name,
                 study.assigned_radiologist,
                 study.assigned_by or "Unknown",
+                logged_date=assigned_at,
             )

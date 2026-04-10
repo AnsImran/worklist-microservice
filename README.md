@@ -72,6 +72,23 @@ The server starts immediately. Within 30 seconds, you will see studies appearing
 - **http://localhost:8000/stats** — Live statistics
 - **http://localhost:8000/worklist** — Current active worklist
 
+### Running the Frontend
+
+```bash
+# From the repo root (API must be running in another terminal)
+set API_BASE_URL=http://localhost:8000&& uv run streamlit run frontend/app.py
+```
+
+The frontend opens at **http://localhost:8501**.
+
+### Running Tests
+
+```bash
+uv run pytest tests/ -v
+```
+
+69 tests covering: API endpoints, study generation, lifecycle transitions, audit logging, demand processing, data store, and field registry.
+
 ---
 
 ## API Endpoints
@@ -84,18 +101,23 @@ The server starts immediately. Within 30 seconds, you will see studies appearing
 | `GET` | `/worklist/{accession}` | Look up a single exam by its accession number |
 | `GET` | `/history` | Archived exams (completed or cancelled). Supports date range filters |
 | `GET` | `/audit` | Full event log — every status change, assignment, creation |
-| `POST` | `/demand` | Create a new exam with full control over characteristics and lifecycle timing |
+| `POST` | `/demand` | Create a new exam immediately with full control over characteristics and lifecycle timing |
+| `POST` | `/demand/batch` | Create multiple exams in one call (same schema as `/demand`, but as a list) |
 | `PUT` | `/studies/{accession}/status` | Manually change an exam's status |
 
 ### Filtering Examples
 
 ```
-GET /worklist?modality=CT                    — Only CT scans
-GET /worklist?status=Reading                 — Only exams being read right now
-GET /worklist?priority_min=7&priority_max=10 — High-priority exams only
-GET /history?date_from=2026-04-09T00:00:00Z  — Archived exams from a specific date
-GET /audit?accession_number=COCSNV0000000001 — Full history of one specific exam
-GET /audit?screen=Assignment                 — Only assignment events
+GET /worklist?modality=CT                          — Only CT scans
+GET /worklist?status=Reading                       — Only exams being read right now
+GET /worklist?priority_min=7&priority_max=10       — High-priority exams only
+GET /worklist?accession_number=COCSNV0000000001    — Find a specific exam in the active worklist
+GET /history?date_from=2026-04-09T00:00:00Z        — Archived exams from a specific date
+GET /history?status=Cancelled                      — Only cancelled exams
+GET /history?patient_name=Garcia                   — Search by patient name (partial match)
+GET /audit?accession_number=COCSNV0000000001       — Full history of one specific exam
+GET /audit?screen=Assignment                       — Only assignment events
+GET /audit?user=Wright                             — Events by a specific user
 ```
 
 ---
@@ -128,6 +150,21 @@ microservice_worklist/
 │       ├── worklist.json            ← Current active studies
 │       ├── archive.json             ← Completed/cancelled studies
 │       └── audit_log.json           ← Full event history
+│
+├── frontend/                   ← Streamlit worklist frontend
+│   ├── app.py                  ← Entry point (home page)
+│   ├── pages/                  ← Worklist, Statistics, Audit Log, History, Demand Injection
+│   └── utils/                  ← API client, styling helpers
+│
+├── tests/                      ← Unit and API tests (pytest)
+│   ├── conftest.py             ← Shared fixtures
+│   ├── test_api_*.py           ← API endpoint tests (health, worklist, history, audit, demand, studies)
+│   ├── test_generator.py       ← Study generation with overrides, custom patients, timelines
+│   ├── test_lifecycle.py       ← Lifecycle transitions, timestamps, cancellation
+│   ├── test_store.py           ← Data store operations
+│   ├── test_audit_logger.py    ← Audit logging with custom timestamps
+│   ├── test_field_registry.py  ← Field generation strategies, patient lookup
+│   └── test_demand_processor.py ← File-based demand processing
 │
 ├── demand/
 │   └── demanded_data.json      ← Inject specific exams with custom timing (see below)

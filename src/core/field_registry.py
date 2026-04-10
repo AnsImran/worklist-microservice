@@ -160,10 +160,19 @@ class FieldRegistry:
         if not patient_name:
             return None
         patient = self._patient_lookup.get(patient_name)
-        if not patient:
-            return None
+        if patient:
+            return_key = field.get("pool_return_key", "")
+            return patient.get(return_key)
+        # Patient not in pool (custom name) — generate a value
         return_key = field.get("pool_return_key", "")
-        return patient.get(return_key)
+        if return_key == "mrn":
+            return f"SHHD{random.randint(2200000, 2999999)}"
+        if return_key == "dob":
+            month = random.randint(1, 12)
+            day = random.randint(1, 28)
+            year = random.randint(1940, 2005)
+            return f"{month:02d}/{day:02d}/{year}"
+        return None
 
     def _gen_self_or_pool(self, field: dict, context: dict) -> Any:
         self_prob = field.get("self_probability", 0.7)

@@ -15,7 +15,11 @@ logger = logging.getLogger(__name__)
 router = APIRouter(tags=["health"])
 
 
-@router.get("/health", summary="Service health check")
+@router.get(
+    "/health",
+    summary="Service health check",
+    description="Returns `{\"status\": \"ok\"}` if the service is running. Use this for uptime monitoring.",
+)
 def health() -> dict[str, str]:
     return {"status": "ok"}
 
@@ -23,6 +27,10 @@ def health() -> dict[str, str]:
 @router.get(
     "/stats",
     summary="Worklist statistics",
+    description=(
+        "Returns live aggregate statistics: total active studies, total archived, "
+        "total audit entries, breakdowns by status and modality, and service uptime."
+    ),
     responses={
         200: {
             "content": {

@@ -3,7 +3,7 @@
 import logging
 from typing import Any
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Path
 
 from src.api.dependencies import get_store
 from src.data.store import DataStore
@@ -18,6 +18,15 @@ router = APIRouter(prefix="/studies", tags=["studies"])
 @router.put(
     "/{accession_number}/status",
     summary="Update a study's status",
+    description=(
+        "Manually transition a study to a new lifecycle status. "
+        "Only valid transitions are allowed:\n\n"
+        "- **Introduced** -> Assigned or Cancelled\n"
+        "- **Assigned** -> Reading or Cancelled\n"
+        "- **Reading** -> Pending Approval or Cancelled\n"
+        "- **Pending Approval** -> Approved or Cancelled\n\n"
+        "When a study reaches Approved or Cancelled, it is automatically moved to the archive."
+    ),
     responses={
         200: {
             "content": {
@@ -52,8 +61,11 @@ router = APIRouter(prefix="/studies", tags=["studies"])
     },
 )
 def update_study_status(
-    accession_number: str,
-    body: StudyStatusUpdate,
+    accession_number: str = Path(
+        description="Unique accession number of the study to update.",
+        examples=["COCSNV0000000001"],
+    ),
+    body: StudyStatusUpdate = ...,
     store: DataStore = Depends(get_store),
 ) -> dict[str, Any]:
     try:

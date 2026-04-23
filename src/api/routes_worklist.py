@@ -39,7 +39,7 @@ router = APIRouter(prefix="/worklist", tags=["worklist"])
                                 "study_description": "CT BRAIN STROKE W/O CONTRAST",
                                 "priority": 10,
                                 "rvu": 3.42,
-                                "status": "Reading",
+                                "status": "Dictating",
                                 "study_introduced_at": "2026-04-10T10:00:00Z",
                                 "assigned_at": "2026-04-10T10:02:30Z",
                                 "assigned_radiologist": "Wright, Joshua M.D.",
@@ -67,7 +67,7 @@ def get_worklist(
     status: str | None = Query(
         None,
         description="Filter by current lifecycle status.",
-        examples=["Introduced", "Assigned", "Reading", "Pending Approval"],
+        examples=["Introduced", "Assigned", "Dictating", "Pending Approval"],
     ),
     priority_min: int | None = Query(
         None, ge=1, le=10,
@@ -139,7 +139,7 @@ def get_worklist(
                             "study_description": "CT BRAIN STROKE W/O CONTRAST",
                             "priority": 10,
                             "rvu": 3.42,
-                            "status": "Reading",
+                            "status": "Dictating",
                             "study_introduced_at": "2026-04-10T10:00:00Z",
                             "assigned_at": "2026-04-10T10:02:30Z",
                             "assigned_radiologist": "Wright, Joshua M.D.",

@@ -34,8 +34,8 @@ def test_create_study_with_lifecycle_overrides(client):
         "study": {"modality": "CT"},
         "lifecycle_overrides": {
             "Introduced_to_Assigned": 60,
-            "Assigned_to_Reading": 60,
-            "Reading_to_Pending_Approval": 60,
+            "Assigned_to_Dictating": 60,
+            "Dictating_to_Pending_Approval": 60,
             "Pending_Approval_to_Approved": 60,
         },
     })
@@ -68,7 +68,7 @@ def test_create_study_with_introduced_at(client):
 def test_create_study_with_cancel_at_stage(client):
     """cancel_at_stage is accepted without error."""
     resp = client.post("/demand", json={
-        "cancel_at_stage": "Reading",
+        "cancel_at_stage": "Dictating",
     })
     assert resp.status_code == 200
     assert resp.json()["study"]["status"] == "Introduced"

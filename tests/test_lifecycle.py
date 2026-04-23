@@ -12,7 +12,7 @@ def test_advance_introduced_to_assigned(store, field_registry, audit_logger, mak
     study = make_study(
         status="Introduced",
         will_be_assigned_at=past,
-        will_start_reading_at=datetime.now(timezone.utc) + timedelta(hours=1),
+        will_start_dictating_at=datetime.now(timezone.utc) + timedelta(hours=1),
         will_be_pending_approval_at=datetime.now(timezone.utc) + timedelta(hours=2),
         will_be_approved_at=datetime.now(timezone.utc) + timedelta(hours=3),
     )
@@ -24,29 +24,29 @@ def test_advance_introduced_to_assigned(store, field_registry, audit_logger, mak
     assert study.assigned_radiologist is not None
 
 
-def test_advance_assigned_to_reading(store, field_registry, audit_logger, make_study):
-    """Study transitions from Assigned to Reading."""
+def test_advance_assigned_to_dictating(store, field_registry, audit_logger, make_study):
+    """Study transitions from Assigned to Dictating."""
     past = datetime.now(timezone.utc) - timedelta(seconds=10)
     study = make_study(
         status="Assigned",
         will_be_assigned_at=past - timedelta(minutes=5),
-        will_start_reading_at=past,
+        will_start_dictating_at=past,
         will_be_pending_approval_at=datetime.now(timezone.utc) + timedelta(hours=1),
         will_be_approved_at=datetime.now(timezone.utc) + timedelta(hours=2),
     )
     engine = LifecycleEngine(store, field_registry, audit_logger)
     engine.advance_all()
 
-    assert study.status == "Reading"
+    assert study.status == "Dictating"
 
 
-def test_advance_reading_to_pending(store, field_registry, audit_logger, make_study):
-    """Study transitions from Reading to Pending Approval."""
+def test_advance_dictating_to_pending(store, field_registry, audit_logger, make_study):
+    """Study transitions from Dictating to Pending Approval."""
     past = datetime.now(timezone.utc) - timedelta(seconds=10)
     study = make_study(
-        status="Reading",
+        status="Dictating",
         will_be_assigned_at=past - timedelta(minutes=10),
-        will_start_reading_at=past - timedelta(minutes=5),
+        will_start_dictating_at=past - timedelta(minutes=5),
         will_be_pending_approval_at=past,
         will_be_approved_at=datetime.now(timezone.utc) + timedelta(hours=1),
     )
@@ -62,7 +62,7 @@ def test_advance_pending_to_approved(store, field_registry, audit_logger, make_s
     study = make_study(
         status="Pending Approval",
         will_be_assigned_at=past - timedelta(minutes=15),
-        will_start_reading_at=past - timedelta(minutes=10),
+        will_start_dictating_at=past - timedelta(minutes=10),
         will_be_pending_approval_at=past - timedelta(minutes=5),
         will_be_approved_at=past,
     )
@@ -79,13 +79,13 @@ def test_cancellation_at_stage(store, field_registry, audit_logger, make_study):
     """Study is cancelled at the specified stage."""
     past = datetime.now(timezone.utc) - timedelta(seconds=10)
     study = make_study(
-        status="Reading",
+        status="Dictating",
         will_be_assigned_at=past - timedelta(minutes=10),
-        will_start_reading_at=past - timedelta(minutes=5),
+        will_start_dictating_at=past - timedelta(minutes=5),
         will_be_pending_approval_at=datetime.now(timezone.utc) + timedelta(hours=1),
         will_be_approved_at=datetime.now(timezone.utc) + timedelta(hours=2),
         will_be_cancelled_at=past,
-        cancel_at_stage="Reading",
+        cancel_at_stage="Dictating",
     )
     acc = study.accession_number
     engine = LifecycleEngine(store, field_registry, audit_logger)
@@ -103,7 +103,7 @@ def test_no_advance_before_time(store, field_registry, audit_logger, make_study)
     study = make_study(
         status="Introduced",
         will_be_assigned_at=future,
-        will_start_reading_at=future + timedelta(hours=1),
+        will_start_dictating_at=future + timedelta(hours=1),
         will_be_pending_approval_at=future + timedelta(hours=2),
         will_be_approved_at=future + timedelta(hours=3),
     )
@@ -119,7 +119,7 @@ def test_audit_log_uses_timeline_timestamps(store, field_registry, audit_logger,
     study = make_study(
         status="Introduced",
         will_be_assigned_at=assigned_time,
-        will_start_reading_at=datetime.now(timezone.utc) + timedelta(hours=1),
+        will_start_dictating_at=datetime.now(timezone.utc) + timedelta(hours=1),
         will_be_pending_approval_at=datetime.now(timezone.utc) + timedelta(hours=2),
         will_be_approved_at=datetime.now(timezone.utc) + timedelta(hours=3),
     )

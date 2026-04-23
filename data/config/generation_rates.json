@@ -12,8 +12,8 @@
 
   "studies_per_tick": {
     "min": 0,
-    "max": 4,
-    "_comment": "Create 0 to 3 new studies every 30 seconds."
+    "max": 0,
+    "_comment": "Auto-generation disabled for deterministic testing. Only studies injected via POST /demand appear on the worklist. Bump max back to 3 or 4 to re-enable background generation."
   },
 
   "active_worklist_max_size": 200,

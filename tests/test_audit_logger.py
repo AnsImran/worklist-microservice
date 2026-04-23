@@ -24,7 +24,7 @@ def test_log_status_change(store, audit_logger):
 def test_log_status_change_with_logged_date(store, audit_logger):
     custom_time = datetime(2026, 1, 15, 10, 30, 0, tzinfo=timezone.utc)
     audit_logger.log_status_change(
-        "ACC001", "Doe, John", "Assigned", "Reading", logged_date=custom_time
+        "ACC001", "Doe, John", "Assigned", "Dictating", logged_date=custom_time
     )
     e = store.audit_entries[0]
     assert e["logged_date"] == "2026-01-15T10:30:00Z"
@@ -32,7 +32,7 @@ def test_log_status_change_with_logged_date(store, audit_logger):
 
 def test_log_status_change_default_date_is_now(store, audit_logger):
     before = datetime.now(timezone.utc)
-    audit_logger.log_status_change("ACC001", "Doe, John", "Reading", "Pending Approval")
+    audit_logger.log_status_change("ACC001", "Doe, John", "Dictating", "Pending Approval")
     after = datetime.now(timezone.utc)
     logged = datetime.fromisoformat(store.audit_entries[0]["logged_date"])
     assert before <= logged <= after + timedelta(seconds=1)

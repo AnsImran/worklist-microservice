@@ -41,14 +41,14 @@ with col1:
         help="How many seconds after appearing before it gets assigned. 0 = random default."
     )
 with col2:
-    assigned_to_reading = st.number_input(
-        "Assigned to Reading (sec)", min_value=0, value=0, step=10,
-        help="How many seconds after assignment before reading starts. 0 = random default."
+    assigned_to_dictating = st.number_input(
+        "Assigned to Dictating (sec)", min_value=0, value=0, step=10,
+        help="How many seconds after assignment before dictating starts. 0 = random default."
     )
 with col3:
-    reading_to_pending = st.number_input(
-        "Reading to Pending Approval (sec)", min_value=0, value=0, step=10,
-        help="How many seconds of reading time. 0 = random default."
+    dictating_to_pending = st.number_input(
+        "Dictating to Pending Approval (sec)", min_value=0, value=0, step=10,
+        help="How many seconds of dictating time. 0 = random default."
     )
 with col4:
     pending_to_approved = st.number_input(
@@ -60,7 +60,7 @@ with col4:
 st.divider()
 cancel_at = st.selectbox(
     "Cancel at Stage (optional)",
-    ["(Don't cancel)", "Introduced", "Assigned", "Reading", "Pending Approval"],
+    ["(Don't cancel)", "Introduced", "Assigned", "Dictating", "Pending Approval"],
     help="If set, the study will be cancelled at this stage instead of being approved.",
 )
 
@@ -86,10 +86,10 @@ if st.button("Submit Demand", type="primary", use_container_width=True):
     overrides: dict = {}
     if intro_to_assigned > 0:
         overrides["Introduced_to_Assigned"] = intro_to_assigned
-    if assigned_to_reading > 0:
-        overrides["Assigned_to_Reading"] = assigned_to_reading
-    if reading_to_pending > 0:
-        overrides["Reading_to_Pending_Approval"] = reading_to_pending
+    if assigned_to_dictating > 0:
+        overrides["Assigned_to_Dictating"] = assigned_to_dictating
+    if dictating_to_pending > 0:
+        overrides["Dictating_to_Pending_Approval"] = dictating_to_pending
     if pending_to_approved > 0:
         overrides["Pending_Approval_to_Approved"] = pending_to_approved
 

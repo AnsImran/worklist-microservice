@@ -8,7 +8,7 @@ def _create_and_approve(client, **study_fields):
     study = resp.json()["study"]
     acc = study["accession_number"]
     client.put(f"/studies/{acc}/status", json={"status": "Assigned"})
-    client.put(f"/studies/{acc}/status", json={"status": "Reading"})
+    client.put(f"/studies/{acc}/status", json={"status": "Dictating"})
     client.put(f"/studies/{acc}/status", json={"status": "Pending Approval"})
     client.put(f"/studies/{acc}/status", json={"status": "Approved"})
     return study

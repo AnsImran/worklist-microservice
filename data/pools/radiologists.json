@@ -1,15 +1,15 @@
 {
-  "_comment": "10 radiologist names. When a study is assigned, one of these is randomly selected.",
+  "_comment": "10 radiologist names. When a study is assigned, one of these is randomly selected. Each name is prefixed with 'test radiologist ' so Zoho ticket subjects and audit trails unambiguously mark test data (see plan doc §36).",
   "radiologists": [
-    "Quach, Ping M.D.",
-    "Wright, Joshua M.D.",
-    "Khan, Abrar M.D.",
-    "Morrell, Joseph M.D.",
-    "Broome, Dale M.D.",
-    "Pirani, Nadeer M.D.",
-    "Patel, Nirav M.D.",
-    "Tank, Jay M.D.",
-    "Shroff, Sachin M.D.",
-    "Tahir, Osman M.D."
+    "test radiologist Quach, Ping M.D.",
+    "test radiologist Wright, Joshua M.D.",
+    "test radiologist Khan, Abrar M.D.",
+    "test radiologist Morrell, Joseph M.D.",
+    "test radiologist Broome, Dale M.D.",
+    "test radiologist Pirani, Nadeer M.D.",
+    "test radiologist Patel, Nirav M.D.",
+    "test radiologist Tank, Jay M.D.",
+    "test radiologist Shroff, Sachin M.D.",
+    "test radiologist Tahir, Osman M.D."
   ]
 }

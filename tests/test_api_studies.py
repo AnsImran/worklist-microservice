@@ -30,7 +30,7 @@ def test_invalid_transition_returns_400(client):
     study = _create_study(client)
     acc = study["accession_number"]
 
-    # Introduced -> Approved is not valid (must go through Assigned, Reading, etc.)
+    # Introduced -> Approved is not valid (must go through Assigned, Dictating, etc.)
     resp = client.put(f"/studies/{acc}/status", json={"status": "Approved"})
     assert resp.status_code == 400
     assert "Cannot transition" in resp.json()["detail"]
@@ -42,7 +42,7 @@ def test_approved_archives_study(client):
 
     # Walk through the full lifecycle
     client.put(f"/studies/{acc}/status", json={"status": "Assigned"})
-    client.put(f"/studies/{acc}/status", json={"status": "Reading"})
+    client.put(f"/studies/{acc}/status", json={"status": "Dictating"})
     client.put(f"/studies/{acc}/status", json={"status": "Pending Approval"})
     resp = client.put(f"/studies/{acc}/status", json={"status": "Approved"})
     assert resp.status_code == 200

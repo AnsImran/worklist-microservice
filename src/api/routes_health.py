@@ -42,7 +42,7 @@ def health() -> dict[str, str]:
                         "active_by_status": {
                             "Introduced": 8,
                             "Assigned": 12,
-                            "Reading": 15,
+                            "Dictating": 15,
                             "Pending Approval": 7,
                         },
                         "active_by_modality": {

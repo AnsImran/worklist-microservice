@@ -4,7 +4,7 @@ On each tick, iterates all active studies and checks if their pre-computed
 transition timestamp has been reached. If so, transitions to the next status.
 
 The lifecycle flow is:
-  Introduced → Assigned → Reading → Pending Approval → Approved
+  Introduced → Assigned → Dictating → Pending Approval → Approved
   (Cancelled can happen at any stage if pre-determined at creation)
 """
 
@@ -18,7 +18,7 @@ from src.services.audit_logger import AuditLogger
 logger = logging.getLogger(__name__)
 
 # Ordered lifecycle stages
-LIFECYCLE_ORDER = ["Introduced", "Assigned", "Reading", "Pending Approval", "Approved"]
+LIFECYCLE_ORDER = ["Introduced", "Assigned", "Dictating", "Pending Approval", "Approved"]
 TERMINAL_STATUSES = {"Approved", "Cancelled"}
 
 
@@ -72,18 +72,20 @@ class LifecycleEngine:
                         self._transition_to_assigned(study, timeline.will_be_assigned_at)
                         transitioned = True
 
-                    elif study.status == "Assigned" and timeline.will_start_reading_at and now >= timeline.will_start_reading_at:
+                    elif study.status == "Assigned" and timeline.will_start_dictating_at and now >= timeline.will_start_dictating_at:
                         old = study.status
-                        study.status = "Reading"
+                        study.status = "Dictating"
+                        study.dictating_started_at = timeline.will_start_dictating_at
                         self.audit_logger.log_status_change(
-                            accession, study.patient_name, old, "Reading",
-                            logged_date=timeline.will_start_reading_at,
+                            accession, study.patient_name, old, "Dictating",
+                            logged_date=timeline.will_start_dictating_at,
                         )
                         transitioned = True
 
-                    elif study.status == "Reading" and timeline.will_be_pending_approval_at and now >= timeline.will_be_pending_approval_at:
+                    elif study.status == "Dictating" and timeline.will_be_pending_approval_at and now >= timeline.will_be_pending_approval_at:
                         old = study.status
                         study.status = "Pending Approval"
+                        study.submitted_for_approval_at = timeline.will_be_pending_approval_at
                         self.audit_logger.log_status_change(
                             accession, study.patient_name, old, "Pending Approval",
                             logged_date=timeline.will_be_pending_approval_at,
@@ -93,6 +95,7 @@ class LifecycleEngine:
                     elif study.status == "Pending Approval" and timeline.will_be_approved_at and now >= timeline.will_be_approved_at:
                         old = study.status
                         study.status = "Approved"
+                        study.approved_at = timeline.will_be_approved_at
                         self.audit_logger.log_status_change(
                             accession, study.patient_name, old, "Approved",
                             logged_date=timeline.will_be_approved_at,

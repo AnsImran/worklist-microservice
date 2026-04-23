@@ -29,14 +29,14 @@
     "  These let you control exactly how fast the exam moves through each stage.",
     "  If you don't set these, the system uses random delays from lifecycle.json.",
     "  - Introduced_to_Assigned: Seconds before it gets assigned to a radiologist",
-    "  - Assigned_to_Reading: Seconds before the radiologist starts reading",
-    "  - Reading_to_Pending_Approval: Seconds before it's submitted for approval",
+    "  - Assigned_to_Dictating: Seconds before the radiologist starts dictating",
+    "  - Dictating_to_Pending_Approval: Seconds before it's submitted for approval",
     "  - Pending_Approval_to_Approved: Seconds before final approval",
     "",
     "CANCEL AT STAGE (OPTIONAL):",
     "  Set this to cancel the exam at a specific stage instead of approving it.",
-    "  Must be one of: 'Introduced', 'Assigned', 'Reading', 'Pending Approval'",
-    "  Example: 'cancel_at_stage': 'Reading' means the exam will be cancelled",
+    "  Must be one of: 'Introduced', 'Assigned', 'Dictating', 'Pending Approval'",
+    "  Example: 'cancel_at_stage': 'Dictating' means the exam will be cancelled",
     "  while it is being read, before it reaches approval.",
     "",
     "IMPORTANT NOTES:",
@@ -70,13 +70,13 @@
       },
       "lifecycle_overrides": {
         "Introduced_to_Assigned": 30,
-        "Assigned_to_Reading": 30,
-        "Reading_to_Pending_Approval": 60,
+        "Assigned_to_Dictating": 30,
+        "Dictating_to_Pending_Approval": 60,
         "Pending_Approval_to_Approved": 30
       }
     },
     {
-      "_description": "EXAMPLE 3: An MR exam that gets CANCELLED during the reading stage.",
+      "_description": "EXAMPLE 3: An MR exam that gets CANCELLED during the dictating stage.",
       "id": "example-cancelled",
       "processed": false,
       "action": "inject_study",
@@ -85,7 +85,7 @@
         "study_description": "- MRI BRAIN W/O CONTRAST",
         "priority": 5
       },
-      "cancel_at_stage": "Reading"
+      "cancel_at_stage": "Dictating"
     },
     {
       "_description": "EXAMPLE 4: A specific patient exam with custom timing at every stage.",
@@ -100,8 +100,8 @@
       },
       "lifecycle_overrides": {
         "Introduced_to_Assigned": 60,
-        "Assigned_to_Reading": 45,
-        "Reading_to_Pending_Approval": 180,
+        "Assigned_to_Dictating": 45,
+        "Dictating_to_Pending_Approval": 180,
         "Pending_Approval_to_Approved": 90
       }
     }

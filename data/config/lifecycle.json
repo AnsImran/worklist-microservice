@@ -24,15 +24,15 @@
       "max_seconds": 300,
       "_comment": "1 to 5 minutes after appearing in worklist, it gets assigned to a radiologist."
     },
-    "Assigned_to_Reading": {
+    "Assigned_to_Dictating": {
       "min_seconds": 30,
       "max_seconds": 120,
-      "_comment": "30 seconds to 2 minutes after assignment, the radiologist starts reading."
+      "_comment": "30 seconds to 2 minutes after assignment, the radiologist starts dictating."
     },
-    "Reading_to_Pending_Approval": {
+    "Dictating_to_Pending_Approval": {
       "min_seconds": 120,
       "max_seconds": 900,
-      "_comment": "2 to 15 minutes of reading time before submitting for approval."
+      "_comment": "2 to 15 minutes of dictating time before submitting for approval."
     },
     "Pending_Approval_to_Approved": {
       "min_seconds": 60,
@@ -42,5 +42,5 @@
   },
 
   "cancellation_probability": 0.02,
-  "cancellable_stages": ["Introduced", "Assigned", "Reading", "Pending Approval"]
+  "cancellable_stages": ["Introduced", "Assigned", "Dictating", "Pending Approval"]
 }

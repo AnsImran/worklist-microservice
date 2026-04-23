@@ -190,7 +190,7 @@
       "required": true,
       "generation_strategy": "initial_value",
       "value": "Introduced",
-      "possible_values": ["Introduced", "Assigned", "Reading", "Pending Approval", "Approved", "Cancelled"],
+      "possible_values": ["Introduced", "Assigned", "Dictating", "Pending Approval", "Approved", "Cancelled"],
       "description": "Lifecycle status. Always starts as 'Introduced'. Managed automatically by the lifecycle engine."
     },
     {

@@ -22,7 +22,7 @@ with st.sidebar:
     )
     status_filter = st.selectbox(
         "Status",
-        ["All", "Introduced", "Assigned", "Reading", "Pending Approval"],
+        ["All", "Introduced", "Assigned", "Dictating", "Pending Approval"],
     )
     priority_range = st.slider("Priority Range", 1, 10, (1, 10))
 

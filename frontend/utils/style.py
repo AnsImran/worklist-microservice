@@ -3,7 +3,7 @@
 STATUS_COLORS = {
     "Introduced": "#2196F3",       # Blue
     "Assigned": "#FF9800",         # Orange
-    "Reading": "#FFC107",          # Amber
+    "Dictating": "#FFC107",        # Amber
     "Pending Approval": "#9C27B0", # Purple
     "Approved": "#4CAF50",         # Green
     "Cancelled": "#F44336",        # Red

@@ -50,8 +50,8 @@ def test_generate_one_lifecycle_overrides(generator):
     """Lifecycle overrides produce exact transition delays."""
     overrides = {
         "Introduced_to_Assigned": 60,
-        "Assigned_to_Reading": 120,
-        "Reading_to_Pending_Approval": 180,
+        "Assigned_to_Dictating": 120,
+        "Dictating_to_Pending_Approval": 180,
         "Pending_Approval_to_Approved": 240,
     }
     study = generator.generate_one(lifecycle_overrides=overrides)
@@ -59,15 +59,15 @@ def test_generate_one_lifecycle_overrides(generator):
     intro = study.study_introduced_at
 
     assert t.will_be_assigned_at == intro + timedelta(seconds=60)
-    assert t.will_start_reading_at == intro + timedelta(seconds=60 + 120)
+    assert t.will_start_dictating_at == intro + timedelta(seconds=60 + 120)
     assert t.will_be_pending_approval_at == intro + timedelta(seconds=60 + 120 + 180)
     assert t.will_be_approved_at == intro + timedelta(seconds=60 + 120 + 180 + 240)
 
 
 def test_generate_one_cancel_at_stage(generator):
     """Cancel at a specific stage sets the cancellation timeline."""
-    study = generator.generate_one(cancel_at_stage="Reading")
-    assert study.timeline.cancel_at_stage == "Reading"
+    study = generator.generate_one(cancel_at_stage="Dictating")
+    assert study.timeline.cancel_at_stage == "Dictating"
     assert study.timeline.will_be_cancelled_at is not None
 
 

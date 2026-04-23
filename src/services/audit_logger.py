@@ -5,7 +5,7 @@ Mirrors the real Exa PACS audit log format with columns:
 
 Screen types used:
   - "New Study"    : A new study was created and added to the worklist
-  - "Studies"      : A study's status changed (Assigned, Reading, Pending Approval, Approved, Cancelled)
+  - "Studies"      : A study's status changed (Assigned, Dictating, Pending Approval, Approved, Cancelled)
   - "Assignment"   : A study was assigned to a radiologist
   - "Demand"       : A study was injected via the demand system
 """

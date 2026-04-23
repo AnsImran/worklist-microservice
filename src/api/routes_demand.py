@@ -90,8 +90,8 @@ class DemandInput(BaseModel):
                     "study_introduced_at": "2026-04-10T10:00:00Z",
                     "lifecycle_overrides": {
                         "Introduced_to_Assigned": 30,
-                        "Assigned_to_Reading": 30,
-                        "Reading_to_Pending_Approval": 60,
+                        "Assigned_to_Dictating": 30,
+                        "Dictating_to_Pending_Approval": 60,
                         "Pending_Approval_to_Approved": 30,
                     },
                     "cancel_at_stage": None,
@@ -119,15 +119,15 @@ class DemandInput(BaseModel):
             "Override the random transition delays with exact values in seconds. "
             "Available keys: "
             "Introduced_to_Assigned, "
-            "Assigned_to_Reading, "
-            "Reading_to_Pending_Approval, "
+            "Assigned_to_Dictating, "
+            "Dictating_to_Pending_Approval, "
             "Pending_Approval_to_Approved. "
             "Omitted keys use the default random range from lifecycle.json."
         ),
         examples=[{
             "Introduced_to_Assigned": 30,
-            "Assigned_to_Reading": 30,
-            "Reading_to_Pending_Approval": 60,
+            "Assigned_to_Dictating": 30,
+            "Dictating_to_Pending_Approval": 60,
             "Pending_Approval_to_Approved": 30,
         }],
     )
@@ -135,9 +135,9 @@ class DemandInput(BaseModel):
         default=None,
         description=(
             "If set, the study will be cancelled at this stage instead of progressing further. "
-            "Valid values: Introduced, Assigned, Reading, Pending Approval."
+            "Valid values: Introduced, Assigned, Dictating, Pending Approval."
         ),
-        examples=["Reading"],
+        examples=["Dictating"],
     )
 
 

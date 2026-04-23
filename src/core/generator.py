@@ -171,7 +171,7 @@ class StudyGenerator:
         will_cancel = cancel_at_stage is not None
         if not will_cancel and random.random() < cancel_prob:
             cancellable = self.lifecycle_config.get(
-                "cancellable_stages", ["Introduced", "Assigned", "Reading", "Pending Approval"]
+                "cancellable_stages", ["Introduced", "Assigned", "Dictating", "Pending Approval"]
             )
             cancel_at_stage = random.choice(cancellable)
             will_cancel = True
@@ -180,11 +180,11 @@ class StudyGenerator:
         assigned_at = introduced_at + timedelta(
             seconds=get_delay("Introduced_to_Assigned")
         )
-        reading_at = assigned_at + timedelta(
-            seconds=get_delay("Assigned_to_Reading")
+        dictating_at = assigned_at + timedelta(
+            seconds=get_delay("Assigned_to_Dictating")
         )
-        pending_at = reading_at + timedelta(
-            seconds=get_delay("Reading_to_Pending_Approval")
+        pending_at = dictating_at + timedelta(
+            seconds=get_delay("Dictating_to_Pending_Approval")
         )
         approved_at = pending_at + timedelta(
             seconds=get_delay("Pending_Approval_to_Approved")
@@ -192,7 +192,7 @@ class StudyGenerator:
 
         timeline = StudyTimeline(
             will_be_assigned_at=assigned_at,
-            will_start_reading_at=reading_at,
+            will_start_dictating_at=dictating_at,
             will_be_pending_approval_at=pending_at,
             will_be_approved_at=approved_at,
         )
@@ -204,10 +204,10 @@ class StudyGenerator:
                     seconds=random.randint(10, get_delay("Introduced_to_Assigned") // 2 or 30)
                 ),
                 "Assigned": assigned_at + timedelta(
-                    seconds=random.randint(10, get_delay("Assigned_to_Reading") // 2 or 15)
+                    seconds=random.randint(10, get_delay("Assigned_to_Dictating") // 2 or 15)
                 ),
-                "Reading": reading_at + timedelta(
-                    seconds=random.randint(10, get_delay("Reading_to_Pending_Approval") // 2 or 60)
+                "Dictating": dictating_at + timedelta(
+                    seconds=random.randint(10, get_delay("Dictating_to_Pending_Approval") // 2 or 60)
                 ),
                 "Pending Approval": pending_at + timedelta(
                     seconds=random.randint(10, get_delay("Pending_Approval_to_Approved") // 2 or 30)

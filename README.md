@@ -27,7 +27,7 @@ The data is fake (randomly generated patient names, exam types, etc.), but the *
 Every exam that enters the worklist goes through these stages:
 
 ```
- Introduced ──→ Assigned ──→ Reading ──→ Pending Approval ──→ Approved
+ Introduced ──→ Assigned ──→ Dictating ──→ Pending Approval ──→ Approved
       │              │           │               │
       └──────────────┴───────────┴───────────────┘
                             │
@@ -39,12 +39,12 @@ Every exam that enters the worklist goes through these stages:
 |---|---|
 | **Introduced** | The exam just appeared in the worklist. No one has picked it up yet. |
 | **Assigned** | A radiologist has been assigned to read this exam. |
-| **Reading** | The radiologist is actively looking at the images and writing a report. |
+| **Dictating** | The radiologist is actively looking at the images and writing a report. |
 | **Pending Approval** | The report is written and waiting for final sign-off. |
 | **Approved** | Done. The report is finalized. The exam moves to the archive. |
 | **Cancelled** | The exam was cancelled before completion (about 2% of exams). |
 
-When an exam is first created, the system **decides its entire timeline upfront** — it already knows exactly when it will be assigned, when reading will start, and when it will be approved. This makes the simulation predictable and realistic.
+When an exam is first created, the system **decides its entire timeline upfront** — it already knows exactly when it will be assigned, when dictating will start, and when it will be approved. This makes the simulation predictable and realistic.
 
 ---
 
@@ -109,7 +109,7 @@ uv run pytest tests/ -v
 
 ```
 GET /worklist?modality=CT                          — Only CT scans
-GET /worklist?status=Reading                       — Only exams being read right now
+GET /worklist?status=Dictating                       — Only exams being read right now
 GET /worklist?priority_min=7&priority_max=10       — High-priority exams only
 GET /worklist?accession_number=COCSNV0000000001    — Find a specific exam in the active worklist
 GET /history?date_from=2026-04-09T00:00:00Z        — Archived exams from a specific date
@@ -195,8 +195,8 @@ Each transition has a `min_seconds` and `max_seconds`. When an exam is created, 
 | Transition | Default range | What it means |
 |---|---|---|
 | Introduced → Assigned | 60–300 seconds | 1 to 5 minutes before someone picks it up |
-| Assigned → Reading | 30–120 seconds | 30 seconds to 2 minutes before reading starts |
-| Reading → Pending Approval | 120–900 seconds | 2 to 15 minutes of reading time |
+| Assigned → Dictating | 30–120 seconds | 30 seconds to 2 minutes before dictating starts |
+| Dictating → Pending Approval | 120–900 seconds | 2 to 15 minutes of dictating time |
 | Pending Approval → Approved | 60–600 seconds | 1 to 10 minutes in the approval queue |
 
 `cancellation_probability` controls how many exams get cancelled instead of approved (default: 2%).
@@ -212,7 +212,7 @@ This file defines every data field on a study — its name, type, whether it is 
 The demand system lets you **inject specific exams** into the worklist with exact characteristics and timing. This is useful for testing scenarios like:
 
 - "I want a STAT stroke exam that gets assigned in 30 seconds and approved in 2 minutes"
-- "I want an MR exam that gets cancelled during reading"
+- "I want an MR exam that gets cancelled during dictating"
 
 ### How to use it
 
@@ -237,8 +237,8 @@ The file contains detailed instructions and multiple commented-out examples. Her
       },
       "lifecycle_overrides": {
         "Introduced_to_Assigned": 30,
-        "Assigned_to_Reading": 30,
-        "Reading_to_Pending_Approval": 60,
+        "Assigned_to_Dictating": 30,
+        "Dictating_to_Pending_Approval": 60,
         "Pending_Approval_to_Approved": 30
       }
     }
@@ -262,10 +262,10 @@ This creates a high-priority CT stroke exam that moves through the entire lifecy
 | `study_description` | What the exam is | `- CT BRAIN STROKE W/O CONTRAST` |
 | `priority` | Urgency level, 1–10 (10 = most urgent) | `7` |
 | `rvu` | Relative Value Unit (complexity measure) | `3.42` |
-| `status` | Current lifecycle stage | `Reading` |
+| `status` | Current lifecycle stage | `Dictating` |
 | `study_introduced_at` | When the exam entered the worklist | `2026-04-09T10:14:44Z` |
 | `assigned_at` | When it was assigned to a radiologist | `2026-04-09T10:16:14Z` |
-| `assigned_radiologist` | Who is reading it | `Wright, Joshua M.D.` |
+| `assigned_radiologist` | Who is dictating it | `Wright, Joshua M.D.` |
 | `assigned_by` | Who assigned it (often self-assigned) | `Wright, Joshua M.D.` |
 
 ### Modalities

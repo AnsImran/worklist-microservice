@@ -38,7 +38,7 @@ with c1:
         df_status = pd.DataFrame(
             list(by_status.items()), columns=["Status", "Count"]
         )
-        status_order = ["Introduced", "Assigned", "Reading", "Pending Approval"]
+        status_order = ["Introduced", "Assigned", "Dictating", "Pending Approval"]
         df_status["Status"] = pd.Categorical(df_status["Status"], categories=status_order, ordered=True)
         df_status = df_status.sort_values("Status")
         fig = px.bar(
@@ -47,7 +47,7 @@ with c1:
             color_discrete_map={
                 "Introduced": "#2196F3",
                 "Assigned": "#FF9800",
-                "Reading": "#FFC107",
+                "Dictating": "#FFC107",
                 "Pending Approval": "#9C27B0",
             },
         )

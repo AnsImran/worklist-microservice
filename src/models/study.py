@@ -10,7 +10,7 @@ class StudyTimeline(BaseModel):
     """Pre-computed lifecycle timestamps. Determined at study creation."""
 
     will_be_assigned_at: datetime | None = None
-    will_start_reading_at: datetime | None = None
+    will_start_dictating_at: datetime | None = None
     will_be_pending_approval_at: datetime | None = None
     will_be_approved_at: datetime | None = None
     will_be_cancelled_at: datetime | None = None
@@ -32,10 +32,15 @@ class Study(BaseModel):
     priority: int = Field(ge=1, le=10)
     rvu: float
 
-    # Status & lifecycle
+    # Status & lifecycle timestamps
     status: str = "Introduced"
     study_introduced_at: datetime
     assigned_at: datetime | None = None
+    dictating_started_at: datetime | None = None
+    submitted_for_approval_at: datetime | None = None
+    approved_at: datetime | None = None
+
+    # Assignment details
     assigned_radiologist: str | None = None
     assigned_by: str | None = None
 
@@ -56,13 +61,44 @@ class Study(BaseModel):
         return data
 
 
+class StudyReassignment(BaseModel):
+    """Manually reassign a study to a different radiologist.
+
+    Only valid when the study is currently in Assigned status. Resets
+    `assigned_at` to the current time so the new radiologist's clock
+    starts fresh (this is what the notification-system engine reads to
+    compute the 2-min nag and 6-min reassignment thresholds). The
+    pre-computed timeline (will_start_dictating_at, etc.) is left alone
+    so the study's scheduled progression is unaffected.
+    """
+
+    model_config = {
+        "json_schema_extra": {
+            "examples": [
+                {"assigned_radiologist": "Jones, Mary M.D.", "assigned_by": "Support Team"},
+            ]
+        }
+    }
+
+    assigned_radiologist: str = Field(
+        min_length=1,
+        description="New radiologist name. Format: 'Last, First M.D.' or similar.",
+        examples=["Jones, Mary M.D."],
+    )
+    assigned_by: str | None = Field(
+        default="Support Team",
+        description="Who performed the reassignment. Defaults to 'Support Team' when omitted.",
+        examples=["Support Team"],
+    )
+
+
 class StudyStatusUpdate(BaseModel):
     """Manually change a study's status.
 
     Valid transitions follow the lifecycle order:
       Introduced  -> Assigned  or Cancelled
-      Assigned    -> Reading   or Cancelled
-      Reading     -> Pending Approval or Cancelled
+      Assigned    -> Dictating   or Cancelled
+      Dictating     -> Pending Approval or Cancelled
       Pending Approval -> Approved or Cancelled
     """
 
@@ -78,9 +114,9 @@ class StudyStatusUpdate(BaseModel):
         description=(
             "Target status. Valid transitions: "
             "Introduced -> Assigned or Cancelled | "
-            "Assigned -> Reading or Cancelled | "
-            "Reading -> Pending Approval or Cancelled | "
+            "Assigned -> Dictating or Cancelled | "
+            "Dictating -> Pending Approval or Cancelled | "
             "Pending Approval -> Approved or Cancelled"
         ),
-        examples=["Assigned", "Reading", "Pending Approval", "Approved", "Cancelled"],
+        examples=["Assigned", "Dictating", "Pending Approval", "Approved", "Cancelled"],
     )

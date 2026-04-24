@@ -11,12 +11,16 @@ Run with: uv run uvicorn src.main:app --host 0.0.0.0 --port 8000
 import asyncio
 import json
 import logging
+import logging.handlers
+import os
 import traceback
 from contextlib import asynccontextmanager
+from pathlib import Path
 from typing import AsyncIterator
 
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
+from prometheus_fastapi_instrumentator import Instrumentator
 
 from src.api.routes_audit import router as audit_router
 from src.api.routes_demand import router as demand_router
@@ -33,12 +37,19 @@ from src.data.store import DataStore
 from src.services.audit_logger import AuditLogger
 from src.services.demand_processor import DemandProcessor
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s | %(levelname)-7s | %(name)s | %(message)s",
-    datefmt="%Y-%m-%d %H:%M:%S",
-)
+# Configure logging -- stderr always; rotating file when WLS_LOG_FILE is set
+# (Phase-2 observability: Promtail tails the file and ships to Loki).
+_LOG_FMT = "%(asctime)s | %(levelname)-7s | %(name)s | %(message)s"
+_LOG_DATEFMT = "%Y-%m-%d %H:%M:%S"
+logging.basicConfig(level=logging.INFO, format=_LOG_FMT, datefmt=_LOG_DATEFMT)
+_log_file = os.environ.get("WLS_LOG_FILE")
+if _log_file:
+    Path(_log_file).parent.mkdir(parents=True, exist_ok=True)
+    _fh = logging.handlers.RotatingFileHandler(
+        _log_file, maxBytes=50 * 1024 * 1024, backupCount=5, encoding="utf-8",
+    )
+    _fh.setFormatter(logging.Formatter(_LOG_FMT, datefmt=_LOG_DATEFMT))
+    logging.getLogger().addHandler(_fh)
 logger = logging.getLogger(__name__)
 
 
@@ -122,3 +133,16 @@ app.include_router(history_router)
 app.include_router(audit_router)
 app.include_router(studies_router)
 app.include_router(demand_router)
+
+
+# ---------------------------------------------------------------------------
+# Prometheus metrics (§38)
+# ---------------------------------------------------------------------------
+Instrumentator(
+    excluded_handlers=[
+        "/metrics",
+        ".*/health.*",
+        ".*/healthz",
+        ".*/readyz",
+    ],
+).instrument(app).expose(app, endpoint="/metrics", include_in_schema=False)

@@ -20,4 +20,6 @@ ENV PYTHONUNBUFFERED=1
 
 EXPOSE 8000
 
-CMD ["uv", "run", "uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# opentelemetry-instrument wraps uvicorn. Inert when OTEL_* env vars are
+# absent, so the image still runs standalone (dev / tests).
+CMD ["uv", "run", "opentelemetry-instrument", "uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000"]

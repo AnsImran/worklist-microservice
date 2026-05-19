@@ -293,3 +293,29 @@ The `data/db/` folder is git-ignored since it is generated at runtime.
 
 - **Dashboard** — A live web UI to view and interact with the worklist (separate container, same repo)
 - **Docker** — Containerized deployment for both the API and dashboard
+
+---
+
+## Deployment & observability (EC2)
+
+> Note: this service is the **mock / simulated** worklist used for development and testing. Production worklist data now comes from the separate NewVue worklist parser — this microservice is not in the production data path, but it is deployed and observed identically so the two stay operationally interchangeable.
+
+Production runs as a Docker container on a single EC2 host, deployed by GitHub Actions, observed by a shared Prometheus + Grafana + Tempo + Loki stack. (Local dev still works via the Quick Start instructions above.)
+
+### Containerization
+- This repo builds **two images**:
+  - **`Dockerfile.api`** → `ghcr.io/ansimran/worklist-microservice/worklist-api:latest` — the FastAPI worklist API.
+  - **`Dockerfile.frontend`** → `ghcr.io/ansimran/worklist-microservice/worklist-frontend:latest` — the Streamlit worklist UI.
+- Both are `python:3.12-slim`; dependencies installed with `uv sync --frozen --no-dev --no-install-project` from `pyproject.toml` + `uv.lock` (eliminates dep drift between local / CI / prod — this replaced an earlier hand-curated `pip install` list that silently went stale when new deps were added). Only the **API** image has its `CMD` wrapped with `opentelemetry-instrument`, which is inert unless the `OTEL_*` env vars are set, so the image runs fine standalone.
+- **`docker-compose.yml`** references the CI-built GHCR images (`worklist-api:latest` and `worklist-frontend:latest`) with `build:` blocks kept as a local fallback.
+- **`.dockerignore`** keeps secrets, tests, docs and the `.github/` folder out of the build context.
+
+### CI/CD — `.github/workflows/ci.yml`
+On push to `main`: **test** (lint/compile/pytest) → **build-and-push** (images → GHCR, registry-cached) → **deploy** (SSH to EC2, `git reset --hard origin/main`, `docker login ghcr.io`, `docker compose pull`, `docker compose up -d`, health-check). Required GitHub Actions secrets: `DEPLOY_HOST`, `DEPLOY_USER`, `DEPLOY_SSH_KEY`, `GHCR_USER`, `GHCR_TOKEN` (plus `DEPLOY_GIT_PATH` where used). Docs-only pushes are skipped via `paths-ignore`.
+
+### EC2 topology
+The containers join an external Docker network **`observability-net`** so services resolve each other by container name and Prometheus can scrape them. An EC2-side **`docker-compose.override.yml`** (gitignored, not in this repo) injects the `OTEL_*` env vars + a `WLS_LOG_FILE` path and joins that network; the committed compose stays environment-agnostic. The container names on EC2 are **`worklist-api`** (internal port **8000**) and **`worklist-frontend`** (Streamlit, internal port **8501** → host port **8502**).
+
+### Observability
+- **Phase 1 — metrics:** `/metrics` exposed via `prometheus-fastapi-instrumentator`; Prometheus scrapes it (scrape job / `OTEL_SERVICE_NAME`: **`worklist`**).
+- **Phase 2 — traces + logs:** the `opentelemetry-instrument` CMD wrapper (API image) auto-instruments FastAPI + httpx and ships spans via OTLP to the OTel Collector → **Tempo**. JSON logs go to `WLS_LOG_FILE`, tailed by **Promtail** into **Loki**; `OTEL_PYTHON_LOG_CORRELATION=true` injects `otelTraceID` so Grafana jumps trace ⇄ log. The explicit OTel instrumentor packages (`opentelemetry-instrumentation-fastapi`/`-httpx`/`-logging`) are pinned in `pyproject.toml` because uv-created venvs ship without `pip`, so the usual `opentelemetry-bootstrap -a install` step silently no-ops.

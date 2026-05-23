@@ -1,6 +1,7 @@
 """Study management API routes — update study status."""
 
 import logging
+import os
 from datetime import datetime, timezone
 from typing import Any
 
@@ -16,6 +17,27 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/studies", tags=["studies"])
 
 
+def _allow_reverse_transitions() -> bool:
+    """Read the env flag fresh on every call (so tests can monkeypatch it).
+
+    When True (set by ``run_all.py --for-e2e``), the mock allows the
+    re-dictation cycle that the prod NewVue workflow exposes but the
+    mock's forward-only state machine normally rejects:
+
+      * Pending Approval -> Dictating  (rad reworks a draft before signing)
+      * Approved         -> Assigned   (signed exam reopened + reassigned)
+      * Approved         -> Dictating  (signed exam reopened, same rad)
+      * Approved         -> Cancelled  (signed exam cancelled retroactively)
+
+    For the Approved-* paths, the study is un-archived from
+    ``store.archived_studies`` back into ``store.active_studies`` so the
+    notification engine starts tracking it again. Subsequent forward
+    progression (Dictating -> Pending Approval -> Approved) re-archives
+    on the second Approved hit. The cycle can repeat any number of times.
+    """
+    return os.environ.get("ALLOW_REVERSE_TRANSITIONS", "false").lower() == "true"
+
+
 @router.put(
     "/{accession_number}/status",
     summary="Update a study's status",
@@ -26,7 +48,16 @@ router = APIRouter(prefix="/studies", tags=["studies"])
         "- **Assigned** -> Dictating or Cancelled\n"
         "- **Dictating** -> Pending Approval or Cancelled\n"
         "- **Pending Approval** -> Approved or Cancelled\n\n"
-        "When a study reaches Approved or Cancelled, it is automatically moved to the archive."
+        "When a study reaches Approved or Cancelled, it is automatically moved to the archive.\n\n"
+        "**Reverse-transition mode (e2e harness only):** when the mock is launched "
+        "with `ALLOW_REVERSE_TRANSITIONS=true`, three extra paths open up to support "
+        "the re-dictation cycle exercised by `tests/e2e`:\n\n"
+        "- **Pending Approval** -> Dictating (draft rework before signing)\n"
+        "- **Approved** -> Assigned (reopen + reassign — un-archives the study)\n"
+        "- **Approved** -> Dictating (same rad reopens — un-archives the study)\n"
+        "- **Approved** -> Cancelled (signed exam cancelled retroactively)\n\n"
+        "When transitioning *out of* Approved the study is moved back from the archive "
+        "into the active worklist; the cycle may repeat any number of times."
     ),
     responses={
         200: {
@@ -70,36 +101,90 @@ def update_study_status(
     store: DataStore = Depends(get_store),
 ) -> dict[str, Any]:
     try:
-        study = store.get_study(accession_number)
-        if not study:
-            raise HTTPException(status_code=404, detail=f"Study {accession_number} not found")
+        reverse_on = _allow_reverse_transitions()
 
-        valid_transitions = {
-            "Introduced": ["Assigned", "Cancelled"],
-            "Assigned": ["Dictating", "Cancelled"],
-            "Dictating": ["Pending Approval", "Cancelled"],
+        # Look up the study. When reverse-transitions are enabled, also
+        # search the archive so that "Approved -> ..." requests resolve.
+        # Note: the archive is searched-only here; the actual un-archive
+        # happens after the transition's been validated.
+        study = store.get_study(accession_number)
+        archived_dict: dict[str, Any] | None = None
+        if study is None and reverse_on:
+            archived_dict = next(
+                (
+                    s for s in store.archived_studies
+                    if s.get("accession_number") == accession_number
+                ),
+                None,
+            )
+        if study is None and archived_dict is None:
+            raise HTTPException(
+                status_code=404,
+                detail=f"Study {accession_number} not found",
+            )
+
+        # Determine the current status -- from the active Study object if
+        # present, otherwise from the archived dict.
+        current_status = study.status if study else archived_dict.get("status", "")
+
+        # Build the allowed-transitions table. Reverse paths are opt-in
+        # via the env flag so production-shape mock behaviour is the
+        # default.
+        valid_transitions: dict[str, list[str]] = {
+            "Introduced":       ["Assigned", "Cancelled"],
+            "Assigned":         ["Dictating", "Cancelled"],
+            "Dictating":        ["Pending Approval", "Cancelled"],
             "Pending Approval": ["Approved", "Cancelled"],
         }
+        if reverse_on:
+            valid_transitions["Pending Approval"] = (
+                valid_transitions["Pending Approval"] + ["Dictating"]
+            )
+            valid_transitions["Approved"] = ["Assigned", "Dictating", "Cancelled"]
 
-        allowed = valid_transitions.get(study.status, [])
+        allowed = valid_transitions.get(current_status, [])
         if body.status not in allowed:
             raise HTTPException(
                 status_code=400,
-                detail=f"Cannot transition from '{study.status}' to '{body.status}'. Allowed: {allowed}",
+                detail=(
+                    f"Cannot transition from '{current_status}' to "
+                    f"'{body.status}'. Allowed: {allowed}"
+                ),
             )
+
+        # If we matched an archived study, un-archive now -- the transition
+        # is validated and the Study object becomes the live record.
+        if study is None:
+            study = store.unarchive_study(accession_number)
+            if study is None:
+                # Shouldn't be reachable -- we found it above -- but be
+                # explicit in case the store mutates between calls.
+                raise HTTPException(
+                    status_code=500,
+                    detail=f"Failed to un-archive {accession_number}",
+                )
 
         audit_logger = AuditLogger(store)
         old_status = study.status
         study.status = body.status
 
-        # Set the corresponding timestamp
+        # Update the lifecycle timestamps. Forward transitions stamp the
+        # entered-into status. Reverse transitions also CLEAR the
+        # timestamps of stages later than the new status, so a subsequent
+        # forward progression won't carry stale data from the prior cycle.
         now = datetime.now(timezone.utc)
         if body.status == "Assigned":
             study.assigned_at = now
+            study.dictating_started_at = None
+            study.submitted_for_approval_at = None
+            study.approved_at = None
         elif body.status == "Dictating":
             study.dictating_started_at = now
+            study.submitted_for_approval_at = None
+            study.approved_at = None
         elif body.status == "Pending Approval":
             study.submitted_for_approval_at = now
+            study.approved_at = None
         elif body.status == "Approved":
             study.approved_at = now
 

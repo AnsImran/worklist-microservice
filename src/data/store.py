@@ -57,6 +57,35 @@ class DataStore:
         if study:
             self.archived_studies.append(study.to_api_response())
 
+    def unarchive_study(self, accession_number: str) -> Study | None:
+        """Move a study from archive back to the active worklist.
+
+        Used by the reverse-transition path (Approved -> Assigned / Dictating
+        / Cancelled) when ALLOW_REVERSE_TRANSITIONS is set on the mock --
+        see routes_studies.py. The reconstructed Study has an empty
+        ``timeline`` + ``lifecycle_overrides`` because the auto-advance
+        schedule that the original Study held no longer applies (the
+        re-dictation cycle is driven manually by the e2e test driver).
+        Existing extra_fields are dropped (api-response shape only keeps
+        them flattened, not nested) -- accepted for the e2e use case.
+
+        Returns the reconstructed Study, or None when the accession_number
+        is not in the archive.
+        """
+        idx = next(
+            (
+                i for i, s in enumerate(self.archived_studies)
+                if s.get("accession_number") == accession_number
+            ),
+            None,
+        )
+        if idx is None:
+            return None
+        archived_dict = self.archived_studies.pop(idx)
+        study = Study.model_validate(archived_dict)
+        self.active_studies[accession_number] = study
+        return study
+
     def add_audit_entry(self, entry: AuditEntry) -> None:
         """Add an audit log entry."""
         self.audit_entries.append(entry.model_dump(mode="json"))

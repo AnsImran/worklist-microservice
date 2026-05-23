@@ -46,6 +46,32 @@ Every exam that enters the worklist goes through these stages:
 
 When an exam is first created, the system **decides its entire timeline upfront** — it already knows exactly when it will be assigned, when dictating will start, and when it will be approved. This makes the simulation predictable and realistic.
 
+### Reverse transitions (opt-in, for end-to-end testing)
+
+By default the lifecycle is **forward-only** — once an exam reaches
+`Approved` or `Cancelled` it is archived and cannot move again. This
+mirrors the real worklist.
+
+For end-to-end testing of the notification system's **re-dictation
+cycle** (a signed exam reopened, reassigned, dictated, and signed again),
+the mock can be launched with the environment variable
+`ALLOW_REVERSE_TRANSITIONS=true`. That unlocks four extra paths on
+`PUT /studies/{accession_number}/status`:
+
+| From | Extra targets allowed |
+|---|---|
+| `Pending Approval` | `Dictating` (rework a draft before signing) |
+| `Approved` | `Assigned` (reopen + reassign) |
+| `Approved` | `Dictating` (same rad reopens) |
+| `Approved` | `Cancelled` (signed exam cancelled retroactively) |
+
+When an exam transitions **out of** `Approved`, it is un-archived back
+into the active worklist (the store's `unarchive_study`), so the
+notification engine starts tracking it again. The cycle can repeat any
+number of times. Leaving the variable unset (the default) keeps the
+strict forward-only behaviour. The notification system's e2e harness
+sets this flag automatically via `run_all.py --for-e2e`.
+
 ---
 
 ## Quick Start
@@ -87,7 +113,7 @@ The frontend opens at **http://localhost:8501**.
 uv run pytest tests/ -v
 ```
 
-69 tests covering: API endpoints, study generation, lifecycle transitions, audit logging, demand processing, data store, and field registry.
+82 tests covering: API endpoints, study generation, lifecycle transitions (incl. opt-in reverse transitions + un-archive), audit logging, demand processing, data store, and field registry.
 
 ---
 

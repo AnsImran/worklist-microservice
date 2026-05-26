@@ -291,9 +291,9 @@ This creates a high-priority CT stroke exam that moves through the entire lifecy
 | `status` | Current lifecycle stage | `Dictating` |
 | `study_introduced_at` | When the exam entered the worklist | `2026-04-09T10:14:44Z` |
 | `assigned_at` | When it was assigned to a radiologist | `2026-04-09T10:16:14Z` |
-| `assigned_radiologist` | **Identity** of the assigned rad (= email / NewVue username). Stable. Used by the notification system for roster lookup. | `joshua.wright@pacspros.llc` |
-| `assigned_radiologist_display` | **Human-readable** name (`"Last, First"`) for the same rad. Used in SMS / Teams / Zoho ticket subjects. Resolved from the same pool entry as `assigned_radiologist`. | `Wright, Joshua` |
-| `assigned_by` | Who assigned it (often self-assigned). Carries the email when self-assigned (70%), a referring-physician name from the pool otherwise. | `joshua.wright@pacspros.llc` |
+| `assigned_radiologist` | **Identity** of the assigned rad (= email / NewVue username). Stable. Used by the notification system for roster lookup. | `test_radiologist_1` (mock placeholder; real value would be e.g. `jw41800@gmail.com`) |
+| `assigned_radiologist_display` | **Human-readable** name (`"Last, First"`) for the same rad. Used in SMS / Teams / Zoho ticket subjects. Resolved from the same pool entry as `assigned_radiologist`. | `TestRad, One` (mock placeholder; real value would be e.g. `Wright, Joshua`) |
+| `assigned_by` | Who assigned it (often self-assigned). Carries the email when self-assigned (70%), a referring-physician name from the pool otherwise. | `test_radiologist_1` |
 
 ### Why `assigned_radiologist` is the email (and how it pairs with `assigned_radiologist_display`)
 
@@ -310,15 +310,17 @@ The pool that backs both fields lives at [`data/pools/radiologists.json`](data/p
 {
   "radiologists": [
     {
-      "email": "joshua.wright@pacspros.llc",
-      "first_name": "Joshua",
-      "last_name": "Wright"
+      "email": "test_radiologist_1",
+      "first_name": "One",
+      "last_name": "TestRad"
     }
   ]
 }
 ```
 
-At the `Introduced → Assigned` transition the lifecycle engine picks one entry at random, sets `assigned_radiologist = entry.email`, and resolves `assigned_radiologist_display` from the same entry via `FieldRegistry.display_name_for(email)`. The reassign endpoint (`PUT /studies/{accession}/assignee`) does the same: it accepts an email in the request body and stamps both fields on the study.
+The current test pool ships with three entries keyed `test_radiologist_1/2/3` so the NS roster (`notification_targets.yaml`) keeps the simple, well-known keys the e2e harness has used all along. In production the `email` value would be a real email (e.g. `jw41800@gmail.com`) matching the NewVue `username` field; the parked 38-rad real-world set lives in [`active_worklist_notification_system/volume/config/notification_targets.real-rads.example.yaml`](../../active_worklist_notification_system/volume/config/notification_targets.real-rads.example.yaml) for when we cut over.
+
+At the `Introduced → Assigned` transition the lifecycle engine picks one entry at random, sets `assigned_radiologist = entry.email`, and resolves `assigned_radiologist_display` from the same entry via `FieldRegistry.display_name_for(email)`. The reassign endpoint (`PUT /studies/{accession}/assignee`) does the same: it accepts an email (or any pool identity string) in the request body and stamps both fields on the study.
 
 ### Modalities
 

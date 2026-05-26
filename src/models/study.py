@@ -86,7 +86,7 @@ class StudyReassignment(BaseModel):
     model_config = {
         "json_schema_extra": {
             "examples": [
-                {"assigned_radiologist": "joshua.wright@pacspros.llc", "assigned_by": "Support Team"},
+                {"assigned_radiologist": "test_radiologist_1", "assigned_by": "Support Team"},
             ]
         }
     }
@@ -94,12 +94,15 @@ class StudyReassignment(BaseModel):
     assigned_radiologist: str = Field(
         min_length=1,
         description=(
-            "New radiologist's NewVue username (the email). This is the STABLE "
-            "identity used for notification-system roster lookup. The "
-            "'Last, First' display name is resolved server-side from the "
-            "radiologists.json pool and stamped on assigned_radiologist_display."
+            "New radiologist's identity -- the pool entry's `email` value "
+            "(in production: a real NewVue username, which is an email; in "
+            "the current test pool: 'test_radiologist_1' etc.). This is the "
+            "stable identity used for notification-system roster lookup. "
+            "The 'Last, First' display name is resolved server-side from "
+            "the radiologists.json pool and stamped on "
+            "assigned_radiologist_display."
         ),
-        examples=["joshua.wright@pacspros.llc"],
+        examples=["test_radiologist_1"],
     )
     assigned_by: str | None = Field(
         default="Support Team",

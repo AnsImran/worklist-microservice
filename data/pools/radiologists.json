@@ -1,20 +1,20 @@
 {
-  "_comment": "Radiologist pool. Each entry has three keys -- email (the NewVue 'username' field, used as the STABLE identity for roster lookup / phone routing) and first_name / last_name (joined as 'Last, First' for human-readable display in SMS / Teams / Zoho ticket subjects). At the Introduced->Assigned transition the mock picks ONE entry at random and emits BOTH `assigned_radiologist` (= email, drives notification_targets.yaml lookup) AND `assigned_radiologist_display` (= 'Last, First') on the worklist row. To pin auto-assignment deterministically to one rad, shrink `radiologists` to a single-entry list. Pool files are hot-reloaded; no restart needed.",
+  "_comment": "Radiologist pool. Each entry has three keys -- email (the NewVue 'username' field; for THIS test pool we use the short string 'test_radiologist_N' as the identity so the NS roster (notification_targets.yaml) stays simple to set up; in production the real value is a true email like 'jw41800@gmail.com') and first_name / last_name (joined as 'Last, First' for human-readable display in SMS / Teams / Zoho ticket subjects). At the Introduced->Assigned transition the mock picks ONE entry at random and emits BOTH `assigned_radiologist` (= the email/identity, drives notification_targets.yaml lookup) AND `assigned_radiologist_display` (= 'Last, First') on the worklist row. The real 38-rad set is parked in active_worklist_notification_system/volume/config/notification_targets.real-rads.example.yaml for when we cut over to NewVue. To pin auto-assignment deterministically to one rad, shrink `radiologists` to a single-entry list. Pool files are hot-reloaded; no restart needed.",
   "radiologists": [
     {
-      "email": "joshua.wright@pacspros.llc",
-      "first_name": "Joshua",
-      "last_name": "Wright"
+      "email": "test_radiologist_1",
+      "first_name": "One",
+      "last_name": "TestRad"
     },
     {
-      "email": "ping.quach@pacspros.llc",
-      "first_name": "Ping",
-      "last_name": "Quach"
+      "email": "test_radiologist_2",
+      "first_name": "Two",
+      "last_name": "TestRad"
     },
     {
-      "email": "abrar.khan@pacspros.llc",
-      "first_name": "Abrar",
-      "last_name": "Khan"
+      "email": "test_radiologist_3",
+      "first_name": "Three",
+      "last_name": "TestRad"
     }
   ]
 }

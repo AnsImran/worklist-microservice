@@ -307,6 +307,32 @@ This creates a high-priority CT stroke exam that moves through the entire lifecy
 
 ---
 
+## Concurrency
+
+FastAPI serves each request in its own threadpool thread when the handler is a
+plain `def`. The two write endpoints (`PUT /studies/{acc}/status` and
+`PUT /studies/{acc}/assignee`) do a read–modify–write on the in-memory `Study`
+object, and concurrent PUTs to the **same** study would race on
+`study.status = …` / `study.assigned_radiologist = …` without coordination —
+this surfaced empirically as one of three concurrent reassigns silently
+dropping when the e2e harness fired three identical PUTs at the same instant.
+
+The fix is one **per-study reentrant lock**, lazily created by accession and
+held only across the read-modify-write block of each handler. Different
+accessions get distinct locks, so concurrent PUTs against **different** studies
+still run in parallel; only same-study compound mutations are serialised — the
+same guarantee a real worklist DB gets for free via row-level locking.
+
+- `DataStore.study_lock(accession)` ([src/data/store.py](src/data/store.py)) —
+  returns the per-study `threading.RLock`, lazy-created under a tiny meta-lock
+  so two threads racing to create the same accession's lock end up sharing one.
+- `update_study_status` / `reassign_study`
+  ([src/api/routes_studies.py](src/api/routes_studies.py)) wrap their bodies
+  with `with store.study_lock(accession_number):` via a thin wrapper +
+  `_*_locked` impl so the existing body needs no re-indent.
+
+---
+
 ## Persistence
 
 All runtime state is saved to JSON files under `data/db/` on every tick (every 30 seconds). If you stop and restart the server, it picks up right where it left off — active studies, archive, audit log, and the accession counter all survive restarts.

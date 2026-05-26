@@ -1,8 +1,9 @@
 {
-  "_comment": "At the Introduced->Assigned lifecycle transition the mock picks ONE name at random from `radiologists` and emits it verbatim as the study's assigned_radiologist (-> exam.assigned_to in the notification system). Narrowed to exactly the TWO roster rads (test_radiologist_1, test_radiologist_2) -- auto-assignment picks randomly between these two, and the notification system routes the SMS to whichever one's per-rad number (both are valid keys in notification_targets.yaml). To pin auto-assignment deterministically to one rad, set `radiologists` to just [\"test_radiologist_1\"] (or _2). To restore the original realistic 10-name pool, use `_disabled_realistic_pool`. Reassign across the two at any time via PUT /studies/{acc}/assignee. Pool files are hot-reloaded; no restart needed.",
+  "_comment": "At the Introduced->Assigned lifecycle transition the mock picks ONE name at random from `radiologists` and emits it verbatim as the study's assigned_radiologist (-> exam.assigned_to in the notification system). Narrowed to exactly the THREE roster rads (test_radiologist_1, test_radiologist_2, test_radiologist_3) -- auto-assignment picks randomly among these three, and the notification system routes the SMS to whichever one's per-rad number (all three are valid keys in notification_targets.yaml). To pin auto-assignment deterministically to one rad, set `radiologists` to just [\"test_radiologist_1\"] (or _2). To restore the original realistic 10-name pool, use `_disabled_realistic_pool`. Reassign across the two at any time via PUT /studies/{acc}/assignee. Pool files are hot-reloaded; no restart needed.",
   "radiologists": [
     "test_radiologist_1",
-    "test_radiologist_2"
+    "test_radiologist_2",
+    "test_radiologist_3"
   ],
   "_disabled_realistic_pool": [
     "test radiologist Quach, Ping M.D.",

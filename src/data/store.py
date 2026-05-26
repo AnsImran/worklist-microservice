@@ -13,6 +13,7 @@ On startup, state is restored from these files if they exist.
 import json
 import logging
 import os
+import threading
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -33,6 +34,15 @@ class DataStore:
         self.audit_entries: list[dict[str, Any]] = []
         self.accession_counter: int = 0
         self._startup_time: datetime = datetime.now(timezone.utc)
+        # Per-study reentrant locks. FastAPI runs each sync handler on its
+        # own threadpool thread, so two concurrent PUTs on the same study
+        # would race on the read-modify-write of `study.status`/`assigned_*`
+        # without this lock. Different accessions get distinct locks, so
+        # concurrent PUTs on DIFFERENT studies still run in parallel; only
+        # same-study compound mutations are serialised. Mirrors what a real
+        # worklist DB gets for free via row-level locking.
+        self._study_locks: dict[str, threading.RLock] = {}
+        self._study_locks_meta: threading.Lock = threading.Lock()
 
     @property
     def startup_time(self) -> datetime:
@@ -42,6 +52,21 @@ class DataStore:
         """Generate the next unique accession number."""
         self.accession_counter += 1
         return f"{prefix}{self.accession_counter:0{zero_pad}d}"
+
+    def study_lock(self, accession_number: str) -> threading.RLock:
+        """Return the per-study RLock used to serialise compound
+        read-modify-write operations on one study across concurrent
+        threadpool handlers. Lazy-created on first access; the meta-lock
+        guards the dict mutation so two threads racing to create the same
+        accession's lock end up sharing one. RLock so a handler can grab
+        the same lock more than once (e.g. via nested helpers) without
+        deadlocking itself."""
+        with self._study_locks_meta:
+            lock = self._study_locks.get(accession_number)
+            if lock is None:
+                lock = threading.RLock()
+                self._study_locks[accession_number] = lock
+            return lock
 
     def add_study(self, study: Study) -> None:
         """Add a new study to the active worklist."""

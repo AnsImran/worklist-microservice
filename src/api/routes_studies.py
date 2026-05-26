@@ -100,6 +100,19 @@ def update_study_status(
     body: StudyStatusUpdate = ...,
     store: DataStore = Depends(get_store),
 ) -> dict[str, Any]:
+    # Per-study lock so concurrent threadpool handlers can't race on the
+    # read-modify-write of this study's status / archive position. See
+    # DataStore.study_lock. Different accessions get distinct locks, so
+    # parallel PUTs on different studies still run concurrently.
+    with store.study_lock(accession_number):
+        return _update_study_status_locked(accession_number, body, store)
+
+
+def _update_study_status_locked(
+    accession_number: str,
+    body: "StudyStatusUpdate",
+    store: DataStore,
+) -> dict[str, Any]:
     try:
         reverse_on = _allow_reverse_transitions()
 
@@ -258,6 +271,19 @@ def reassign_study(
     ),
     body: StudyReassignment = ...,
     store: DataStore = Depends(get_store),
+) -> dict[str, Any]:
+    # Per-study lock — see update_study_status above. Without this, three
+    # concurrent reassigns (e.g. the e2e harness driving 3 cloned studies
+    # at the same `at` offset) raced on `study.assigned_radiologist =`
+    # and one PUT silently dropped on the way back to the client.
+    with store.study_lock(accession_number):
+        return _reassign_study_locked(accession_number, body, store)
+
+
+def _reassign_study_locked(
+    accession_number: str,
+    body: "StudyReassignment",
+    store: DataStore,
 ) -> dict[str, Any]:
     try:
         study = store.get_study(accession_number)

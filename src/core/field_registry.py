@@ -46,6 +46,26 @@ class FieldRegistry:
         for patient in patients_data.get("patients", []):
             self._patient_lookup[patient["name"]] = patient
 
+    def display_name_for(self, email: str | None) -> str | None:
+        """Resolve a radiologist email to its 'Last, First' display string.
+
+        Returns None when `email` is None, when the radiologists.json pool
+        isn't loaded, or when no entry matches. Used by lifecycle.py and the
+        reassign endpoint to populate study.assigned_radiologist_display
+        alongside study.assigned_radiologist (which is the email).
+        """
+        if not email:
+            return None
+        pool = self._pools.get("radiologists.json", {})
+        for entry in pool.get("radiologists", []):
+            if isinstance(entry, dict) and entry.get("email") == email:
+                first = entry.get("first_name", "")
+                last = entry.get("last_name", "")
+                if first or last:
+                    return f"{last}, {first}".strip(", ").strip()
+                return None
+        return None
+
     def reload_pool(self, pool_file: str, data: Any) -> None:
         """Update a specific pool's cached data."""
         self._pools[pool_file] = data

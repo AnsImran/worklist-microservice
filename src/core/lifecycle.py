@@ -131,11 +131,17 @@ class LifecycleEngine:
         study.status = "Assigned"
         study.assigned_at = assigned_at
 
-        # Generate radiologist and assigned_by using field registry
+        # Generate radiologist and assigned_by using field registry.
+        # assigned_radiologist is the EMAIL (identity); the matching
+        # 'Last, First' display name is resolved from the same pool and
+        # stored alongside on assigned_radiologist_display.
         context = {"patient_name": study.patient_name, "modality": study.modality}
         for field_def in self.field_registry.fields:
             if field_def["name"] == "assigned_radiologist":
                 study.assigned_radiologist = self.field_registry.generate_value(field_def, context)
+                study.assigned_radiologist_display = self.field_registry.display_name_for(
+                    study.assigned_radiologist
+                )
                 context["assigned_radiologist"] = study.assigned_radiologist
             elif field_def["name"] == "assigned_by":
                 study.assigned_by = self.field_registry.generate_value(field_def, context)

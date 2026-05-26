@@ -41,7 +41,18 @@ class Study(BaseModel):
     approved_at: datetime | None = None
 
     # Assignment details
+    #
+    # `assigned_radiologist` is the STABLE identity: the NewVue username (an
+    # email). It is what notification_targets.yaml is keyed by, and what the
+    # NS engine uses for swap detection across polls.
+    #
+    # `assigned_radiologist_display` is the human-readable 'Last, First'
+    # form, joined from the picked pool entry's first_name + last_name. It
+    # exists ONLY so consumers (notification system, Zoho ticket subjects,
+    # Teams cards) don't have to render an email to a human reader. NEVER
+    # used for identity / routing.
     assigned_radiologist: str | None = None
+    assigned_radiologist_display: str | None = None
     assigned_by: str | None = None
 
     # Pre-computed timeline (internal — controls when transitions happen)
@@ -75,15 +86,20 @@ class StudyReassignment(BaseModel):
     model_config = {
         "json_schema_extra": {
             "examples": [
-                {"assigned_radiologist": "Jones, Mary M.D.", "assigned_by": "Support Team"},
+                {"assigned_radiologist": "joshua.wright@pacspros.llc", "assigned_by": "Support Team"},
             ]
         }
     }
 
     assigned_radiologist: str = Field(
         min_length=1,
-        description="New radiologist name. Format: 'Last, First M.D.' or similar.",
-        examples=["Jones, Mary M.D."],
+        description=(
+            "New radiologist's NewVue username (the email). This is the STABLE "
+            "identity used for notification-system roster lookup. The "
+            "'Last, First' display name is resolved server-side from the "
+            "radiologists.json pool and stamped on assigned_radiologist_display."
+        ),
+        examples=["joshua.wright@pacspros.llc"],
     )
     assigned_by: str | None = Field(
         default="Support Team",

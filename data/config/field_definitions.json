@@ -218,8 +218,9 @@
       "generation_strategy": "random_from_pool",
       "pool_file": "radiologists.json",
       "pool_key": "radiologists",
+      "pool_subkey": "email",
       "trigger_status": "Assigned",
-      "description": "Which radiologist is assigned to read this study. Set when status becomes Assigned."
+      "description": "Identity of the assigned radiologist: the NewVue 'username' (= email). Picked from radiologists.json by random_from_pool with pool_subkey='email'. Drives the notification system's roster lookup (notification_targets.yaml is keyed by this string). The human-readable 'Last, First' display name lives on `assigned_radiologist_display`, populated alongside this field by lifecycle.py / routes_studies.py via field_registry.display_name_for(email)."
     },
     {
       "name": "assigned_by",

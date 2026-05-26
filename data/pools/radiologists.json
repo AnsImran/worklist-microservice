@@ -1,20 +1,20 @@
 {
-  "_comment": "At the Introduced->Assigned lifecycle transition the mock picks ONE name at random from `radiologists` and emits it verbatim as the study's assigned_radiologist (-> exam.assigned_to in the notification system). Narrowed to exactly the THREE roster rads (test_radiologist_1, test_radiologist_2, test_radiologist_3) -- auto-assignment picks randomly among these three, and the notification system routes the SMS to whichever one's per-rad number (all three are valid keys in notification_targets.yaml). To pin auto-assignment deterministically to one rad, set `radiologists` to just [\"test_radiologist_1\"] (or _2). To restore the original realistic 10-name pool, use `_disabled_realistic_pool`. Reassign across the two at any time via PUT /studies/{acc}/assignee. Pool files are hot-reloaded; no restart needed.",
+  "_comment": "Radiologist pool. Each entry has three keys -- email (the NewVue 'username' field, used as the STABLE identity for roster lookup / phone routing) and first_name / last_name (joined as 'Last, First' for human-readable display in SMS / Teams / Zoho ticket subjects). At the Introduced->Assigned transition the mock picks ONE entry at random and emits BOTH `assigned_radiologist` (= email, drives notification_targets.yaml lookup) AND `assigned_radiologist_display` (= 'Last, First') on the worklist row. To pin auto-assignment deterministically to one rad, shrink `radiologists` to a single-entry list. Pool files are hot-reloaded; no restart needed.",
   "radiologists": [
-    "test_radiologist_1",
-    "test_radiologist_2",
-    "test_radiologist_3"
-  ],
-  "_disabled_realistic_pool": [
-    "test radiologist Quach, Ping M.D.",
-    "test radiologist Wright, Joshua M.D.",
-    "test radiologist Khan, Abrar M.D.",
-    "test radiologist Morrell, Joseph M.D.",
-    "test radiologist Broome, Dale M.D.",
-    "test radiologist Pirani, Nadeer M.D.",
-    "test radiologist Patel, Nirav M.D.",
-    "test radiologist Tank, Jay M.D.",
-    "test radiologist Shroff, Sachin M.D.",
-    "test radiologist Tahir, Osman M.D."
+    {
+      "email": "joshua.wright@pacspros.llc",
+      "first_name": "Joshua",
+      "last_name": "Wright"
+    },
+    {
+      "email": "ping.quach@pacspros.llc",
+      "first_name": "Ping",
+      "last_name": "Quach"
+    },
+    {
+      "email": "abrar.khan@pacspros.llc",
+      "first_name": "Abrar",
+      "last_name": "Khan"
+    }
   ]
 }

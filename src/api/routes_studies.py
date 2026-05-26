@@ -7,7 +7,8 @@ from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, Path
 
-from src.api.dependencies import get_store
+from src.api.dependencies import get_field_registry, get_store
+from src.core.field_registry import FieldRegistry
 from src.data.store import DataStore
 from src.models.study import StudyReassignment, StudyStatusUpdate
 from src.services.audit_logger import AuditLogger
@@ -271,19 +272,21 @@ def reassign_study(
     ),
     body: StudyReassignment = ...,
     store: DataStore = Depends(get_store),
+    field_registry: FieldRegistry = Depends(get_field_registry),
 ) -> dict[str, Any]:
     # Per-study lock — see update_study_status above. Without this, three
     # concurrent reassigns (e.g. the e2e harness driving 3 cloned studies
     # at the same `at` offset) raced on `study.assigned_radiologist =`
     # and one PUT silently dropped on the way back to the client.
     with store.study_lock(accession_number):
-        return _reassign_study_locked(accession_number, body, store)
+        return _reassign_study_locked(accession_number, body, store, field_registry)
 
 
 def _reassign_study_locked(
     accession_number: str,
     body: "StudyReassignment",
     store: DataStore,
+    field_registry: FieldRegistry,
 ) -> dict[str, Any]:
     try:
         study = store.get_study(accession_number)
@@ -303,6 +306,7 @@ def _reassign_study_locked(
         assigned_by = body.assigned_by or "Support Team"
 
         study.assigned_radiologist = new_radiologist
+        study.assigned_radiologist_display = field_registry.display_name_for(new_radiologist)
         study.assigned_by = assigned_by
         study.assigned_at = datetime.now(timezone.utc)
 
